@@ -33,7 +33,18 @@ https://templatemo.com/tm-586-scholar
 
 <body>
 
-  <!-- Preloader removed for faster loading -->
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
 
 
 
@@ -586,12 +597,6 @@ https://templatemo.com/tm-586-scholar
                 body: JSON.stringify({ name, email, message })
             });
             
-            // Check if response is JSON
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('Backend server not running. Start it with: python app.py');
-            }
-            
             const data = await response.json();
             
             if (data.success) {
@@ -602,11 +607,7 @@ https://templatemo.com/tm-586-scholar
             }
         } catch (error) {
             console.error('Contact form error:', error);
-            if (error.message.includes('Failed to fetch') || error.message.includes('Backend server')) {
-                showStatus('❌ Backend server not running. Please start it first.', 'error');
-            } else {
-                showStatus('❌ ' + error.message, 'error');
-            }
+            showStatus('❌ Network error. Please try again later.', 'error');
         } finally {
             btn.textContent = originalText;
             btn.disabled = false;
