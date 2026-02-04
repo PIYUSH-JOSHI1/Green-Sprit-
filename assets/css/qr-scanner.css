@@ -1,0 +1,841 @@
+/**
+ * Green Sprint - QR Scanner Styles
+ * QR Code scanning and tree registration UI
+ */
+
+/* ============================================
+   QR Scanner Container
+   ============================================ */
+.qr-scanner-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2d5a27 0%, #4a9c3f 100%);
+    padding: 30px 20px;
+}
+
+.qr-scanner-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.scanner-header {
+    background: var(--gs-primary, #2d5a27);
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+.scanner-header h1 {
+    font-size: 24px;
+    margin: 0 0 5px;
+}
+
+.scanner-header p {
+    opacity: 0.8;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ============================================
+   Scanner View
+   ============================================ */
+.scanner-view {
+    position: relative;
+    background: #000;
+}
+
+#qr-reader {
+    width: 100%;
+    min-height: 350px;
+}
+
+#qr-reader video {
+    width: 100%;
+    height: auto;
+}
+
+/* Scanner overlay frame */
+.scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scanner-frame {
+    width: 250px;
+    height: 250px;
+    position: relative;
+}
+
+.scanner-frame::before,
+.scanner-frame::after,
+.scanner-frame .corner-tl,
+.scanner-frame .corner-tr,
+.scanner-frame .corner-bl,
+.scanner-frame .corner-br {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-color: #4ade80;
+    border-style: solid;
+}
+
+.scanner-frame .corner-tl {
+    top: 0;
+    left: 0;
+    border-width: 4px 0 0 4px;
+}
+
+.scanner-frame .corner-tr {
+    top: 0;
+    right: 0;
+    border-width: 4px 4px 0 0;
+}
+
+.scanner-frame .corner-bl {
+    bottom: 0;
+    left: 0;
+    border-width: 0 0 4px 4px;
+}
+
+.scanner-frame .corner-br {
+    bottom: 0;
+    right: 0;
+    border-width: 0 4px 4px 0;
+}
+
+/* Scanning line animation */
+.scanner-line {
+    position: absolute;
+    top: 0;
+    left: 10%;
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #4ade80, transparent);
+    animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+    0% {
+        top: 10px;
+    }
+    50% {
+        top: calc(100% - 10px);
+    }
+    100% {
+        top: 10px;
+    }
+}
+
+/* Scanner controls */
+.scanner-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+.scanner-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.scanner-btn.primary {
+    background: var(--gs-primary, #2d5a27);
+    color: white;
+}
+
+.scanner-btn.primary:hover {
+    background: #1e3d1a;
+}
+
+.scanner-btn.secondary {
+    background: white;
+    color: #333;
+    border: 2px solid #ddd;
+}
+
+.scanner-btn.secondary:hover {
+    border-color: var(--gs-primary, #2d5a27);
+    color: var(--gs-primary, #2d5a27);
+}
+
+.scanner-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   Tree Registration Form
+   ============================================ */
+.registration-container {
+    padding: 30px;
+}
+
+.registration-progress-bar {
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+#registration-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gs-primary, #2d5a27), var(--gs-secondary, #4a9c3f));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+/* Step indicators */
+.step-indicators {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.step-indicators::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 25px;
+    right: 25px;
+    height: 2px;
+    background: #e0e0e0;
+    z-index: 0;
+}
+
+.step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.step-indicator .step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.step-indicator.completed .step-number {
+    background: var(--gs-primary, #2d5a27);
+    color: white;
+}
+
+.step-indicator.active .step-number {
+    background: var(--gs-primary, #2d5a27);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(45, 90, 39, 0.2);
+}
+
+.step-indicator .step-label {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+}
+
+.step-indicator.completed .step-label,
+.step-indicator.active .step-label {
+    color: var(--gs-primary, #2d5a27);
+}
+
+/* Form steps */
+.form-step {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.form-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-step h2 {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.form-step p {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+/* Campaign selection */
+.campaign-select-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.campaign-select-item {
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.campaign-select-item:hover {
+    border-color: var(--gs-primary, #2d5a27);
+}
+
+.campaign-select-item.selected {
+    border-color: var(--gs-primary, #2d5a27);
+    background: rgba(45, 90, 39, 0.05);
+}
+
+.campaign-select-item h4 {
+    font-size: 14px;
+    margin: 0 0 5px;
+}
+
+.campaign-select-item p {
+    font-size: 12px;
+    color: #999;
+    margin: 0;
+}
+
+/* Species search */
+.species-search-container {
+    position: relative;
+}
+
+#species-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.species-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+.species-item:hover {
+    background: #f5f5f5;
+}
+
+.species-item:last-child {
+    border-bottom: none;
+}
+
+.species-item strong {
+    display: block;
+    font-size: 14px;
+    color: #333;
+}
+
+.species-item small {
+    color: #999;
+    font-style: italic;
+}
+
+/* Location display */
+.location-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.location-display i {
+    font-size: 24px;
+    color: var(--gs-primary, #2d5a27);
+}
+
+#current-location {
+    flex: 1;
+    font-size: 14px;
+    color: #666;
+}
+
+.location-refresh-btn {
+    background: none;
+    border: none;
+    color: var(--gs-primary, #2d5a27);
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Photo upload */
+.photo-upload-area {
+    border: 3px dashed #ddd;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.photo-upload-area:hover {
+    border-color: var(--gs-primary, #2d5a27);
+    background: rgba(45, 90, 39, 0.02);
+}
+
+.photo-upload-area.has-photo {
+    border-style: solid;
+    border-color: var(--gs-success, #2ecc71);
+    padding: 20px;
+}
+
+.photo-upload-area i {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 15px;
+}
+
+.photo-upload-area p {
+    color: #999;
+    margin: 0;
+}
+
+#photo-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+    display: none;
+}
+
+/* Photo tips */
+.photo-tips {
+    background: #fff3cd;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.photo-tips h4 {
+    font-size: 14px;
+    color: #856404;
+    margin: 0 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.photo-tips ul {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 13px;
+    color: #856404;
+}
+
+.photo-tips li {
+    margin-bottom: 5px;
+}
+
+/* Review section */
+.review-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.review-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.review-item label {
+    font-weight: 600;
+    color: #555;
+}
+
+.review-item span {
+    color: #333;
+}
+
+.review-item .edit-btn {
+    color: var(--gs-primary, #2d5a27);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+/* Form navigation */
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+/* ============================================
+   Success Modal
+   ============================================ */
+#success-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.success-modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    max-width: 450px;
+    width: 100%;
+    animation: modalPop 0.4s ease;
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--gs-primary, #2d5a27), var(--gs-secondary, #4a9c3f));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-15px);
+    }
+    60% {
+        transform: translateY(-7px);
+    }
+}
+
+.success-icon i {
+    font-size: 40px;
+    color: white;
+}
+
+.success-modal-content h2 {
+    font-size: 26px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.success-modal-content p {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.success-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 25px;
+}
+
+.success-stat {
+    text-align: center;
+}
+
+.success-stat .value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gs-primary, #2d5a27);
+}
+
+.success-stat .label {
+    font-size: 12px;
+    color: #999;
+}
+
+#generated-qr-code {
+    margin: 20px auto;
+}
+
+#generated-qr-code img,
+#generated-qr-code canvas {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.qr-instructions {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 25px;
+}
+
+.success-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* ============================================
+   Loading State
+   ============================================ */
+#registration-loader {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 1500;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.loader-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #f0f0f0;
+    border-top-color: var(--gs-primary, #2d5a27);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loader-text {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #666;
+}
+
+/* ============================================
+   Tree Details View (After Scan)
+   ============================================ */
+.tree-details-container {
+    padding: 30px;
+}
+
+.tree-hero {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+.tree-hero img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.tree-hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    padding: 20px;
+    color: white;
+}
+
+.tree-hero-overlay h2 {
+    font-size: 24px;
+    margin: 0 0 5px;
+    color: white;
+}
+
+.tree-hero-overlay p {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.tree-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.tree-info-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.tree-info-card i {
+    font-size: 28px;
+    color: var(--gs-primary, #2d5a27);
+    margin-bottom: 10px;
+}
+
+.tree-info-card .value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+}
+
+.tree-info-card .label {
+    font-size: 12px;
+    color: #888;
+}
+
+.tree-planter {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.tree-planter img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.tree-planter-info h4 {
+    margin: 0 0 3px;
+    font-size: 16px;
+}
+
+.tree-planter-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #888;
+}
+
+.tree-map {
+    height: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 600px) {
+    .qr-scanner-container {
+        border-radius: 0;
+        margin: -30px -20px;
+    }
+    
+    .scanner-controls {
+        flex-direction: column;
+    }
+    
+    .scanner-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .step-indicators::before {
+        display: none;
+    }
+    
+    .step-indicator .step-label {
+        display: none;
+    }
+    
+    .form-navigation {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-navigation .btn {
+        width: 100%;
+    }
+    
+    .success-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .success-actions {
+        flex-direction: column;
+    }
+    
+    .tree-info-grid {
+        grid-template-columns: 1fr;
+    }
+}

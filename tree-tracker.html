@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant a Tree | Green Sprint</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    
+    <!-- Bootstrap -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Leaflet.js CSS (FREE Map Library) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/qr-scanner.css">
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    
+    <!-- Leaflet.js (FREE Map Library) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- QR Code Scanner -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.4/html5-qrcode.min.js"></script>
+    
+    <!-- QR Code Generator -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="qr-scanner-page">
+    <div class="qr-scanner-container">
+        <!-- Header -->
+        <div class="scanner-header">
+            <h1>🌳 Plant a Tree</h1>
+            <p>Scan QR code or register a new tree</p>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="scanner-controls" style="border-bottom: 1px solid #eee;">
+            <button class="scanner-btn primary active" id="tab-scan" onclick="switchTab('scan')">
+                <i class="fa fa-qrcode"></i> Scan QR
+            </button>
+            <button class="scanner-btn secondary" id="tab-register" onclick="switchTab('register')">
+                <i class="fa fa-plus"></i> Register New
+            </button>
+        </div>
+        
+        <!-- Scan Tab -->
+        <div id="scan-tab" class="tab-content active">
+            <!-- Scanner View -->
+            <div class="scanner-view">
+                <div id="qr-reader"></div>
+                <div class="scanner-overlay">
+                    <div class="scanner-frame">
+                        <div class="corner-tl"></div>
+                        <div class="corner-tr"></div>
+                        <div class="corner-bl"></div>
+                        <div class="corner-br"></div>
+                        <div class="scanner-line"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scanner Controls -->
+            <div class="scanner-controls">
+                <button class="scanner-btn primary" id="start-scan-btn" onclick="startScanning()">
+                    <i class="fa fa-camera"></i> Start Scanning
+                </button>
+                <button class="scanner-btn secondary" id="stop-scan-btn" onclick="stopScanning()" style="display: none;">
+                    <i class="fa fa-stop"></i> Stop
+                </button>
+                <button class="scanner-btn secondary" onclick="switchCamera()">
+                    <i class="fa fa-sync"></i> Switch Camera
+                </button>
+            </div>
+            
+            <!-- Scan Result -->
+            <div id="scan-result" class="tree-details-container" style="display: none;">
+                <!-- Tree details will appear here after scan -->
+            </div>
+        </div>
+        
+        <!-- Register Tab -->
+        <div id="register-tab" class="tab-content" style="display: none;">
+            <div class="registration-container">
+                <!-- Progress Bar -->
+                <div class="registration-progress-bar">
+                    <div id="registration-progress" style="width: 20%;"></div>
+                </div>
+                
+                <!-- Step Indicators -->
+                <div class="step-indicators">
+                    <div class="step-indicator active" data-step="1">
+                        <div class="step-number">1</div>
+                        <span class="step-label">Campaign</span>
+                    </div>
+                    <div class="step-indicator" data-step="2">
+                        <div class="step-number">2</div>
+                        <span class="step-label">Species</span>
+                    </div>
+                    <div class="step-indicator" data-step="3">
+                        <div class="step-number">3</div>
+                        <span class="step-label">Location</span>
+                    </div>
+                    <div class="step-indicator" data-step="4">
+                        <div class="step-number">4</div>
+                        <span class="step-label">Photo</span>
+                    </div>
+                    <div class="step-indicator" data-step="5">
+                        <div class="step-number">5</div>
+                        <span class="step-label">Confirm</span>
+                    </div>
+                </div>
+                
+                <form id="tree-registration-form">
+                    <!-- Step 1: Select Campaign -->
+                    <div class="form-step active" data-step="1">
+                        <h2>Select a Campaign</h2>
+                        <p>Choose which campaign this tree belongs to, or plant independently</p>
+                        
+                        <div class="campaign-select-grid" id="campaign-list">
+                            <div class="campaign-select-item selected" data-id="personal" onclick="selectCampaign('personal')">
+                                <h4>🌱 Personal Planting</h4>
+                                <p>Plant on your own initiative</p>
+                            </div>
+                            <!-- More campaigns loaded dynamically -->
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                Next <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Select Species -->
+                    <div class="form-step" data-step="2">
+                        <h2>Select Tree Species</h2>
+                        <p>What type of tree are you planting?</p>
+                        
+                        <div class="form-group species-search-container">
+                            <input type="text" class="form-control" id="species-search" 
+                                   placeholder="Search tree species...">
+                            <div id="species-results"></div>
+                        </div>
+                        
+                        <div id="selected-species" style="display: none;">
+                            <div class="alert alert-success">
+                                <i class="fa fa-check"></i> Selected: <strong id="selected-species-name"></strong>
+                            </div>
+                        </div>
+                        
+                        <div class="popular-species">
+                            <h4>Popular Species</h4>
+                            <div class="campaign-select-grid" id="popular-species-list">
+                                <!-- Loaded dynamically -->
+                            </div>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                <i class="fa fa-arrow-left"></i> Back
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                Next <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Location -->
+                    <div class="form-step" data-step="3">
+                        <h2>Confirm Location</h2>
+                        <p>We'll use your current GPS location</p>
+                        
+                        <div class="location-display">
+                            <i class="fa fa-map-marker-alt"></i>
+                            <span id="current-location">Getting location...</span>
+                            <button type="button" class="location-refresh-btn" onclick="refreshLocation()">
+                                <i class="fa fa-refresh"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="location-map" class="tree-map" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                            <span style="color: #888;">📍 Map preview</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Additional Location Notes (Optional)</label>
+                            <input type="text" class="form-control" name="location_notes" 
+                                   placeholder="e.g., Near the main entrance, Block A">
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                <i class="fa fa-arrow-left"></i> Back
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                Next <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4: Photo -->
+                    <div class="form-step" data-step="4">
+                        <h2>Take a Photo</h2>
+                        <p>Capture evidence of your planted tree</p>
+                        
+                        <div class="photo-upload-area" onclick="document.getElementById('tree-photo').click()">
+                            <i class="fa fa-camera"></i>
+                            <p>Click to take or upload photo</p>
+                            <img id="photo-preview" src="" alt="Preview">
+                        </div>
+                        <input type="file" id="tree-photo" name="photo" accept="image/*" capture="environment" style="display: none;">
+                        
+                        <div class="photo-tips">
+                            <h4><i class="fa fa-lightbulb"></i> Photo Tips</h4>
+                            <ul>
+                                <li>Show the entire tree in the frame</li>
+                                <li>Include surroundings for context</li>
+                                <li>Ensure good lighting</li>
+                                <li>Avoid blurry images</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                <i class="fa fa-arrow-left"></i> Back
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">
+                                Next <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 5: Review & Submit -->
+                    <div class="form-step" data-step="5">
+                        <h2>Review & Confirm</h2>
+                        <p>Double-check your tree details before submitting</p>
+                        
+                        <div class="review-section">
+                            <div class="review-item">
+                                <label>Campaign</label>
+                                <span id="review-campaign">Personal Planting</span>
+                                <a href="#" class="edit-btn" onclick="goToStep(1)">Edit</a>
+                            </div>
+                            <div class="review-item">
+                                <label>Species</label>
+                                <span id="review-species">Not selected</span>
+                                <a href="#" class="edit-btn" onclick="goToStep(2)">Edit</a>
+                            </div>
+                            <div class="review-item">
+                                <label>Location</label>
+                                <span id="review-location">Not set</span>
+                                <a href="#" class="edit-btn" onclick="goToStep(3)">Edit</a>
+                            </div>
+                            <div class="review-item">
+                                <label>Photo</label>
+                                <span id="review-photo">Not uploaded</span>
+                                <a href="#" class="edit-btn" onclick="goToStep(4)">Edit</a>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Additional Notes (Optional)</label>
+                            <textarea class="form-control" name="notes" rows="3" 
+                                      placeholder="Any additional information about this tree..."></textarea>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">
+                                <i class="fa fa-arrow-left"></i> Back
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-check"></i> Register Tree
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Back to Dashboard -->
+        <div style="padding: 20px; text-align: center;">
+            <a href="dashboard.html" style="color: #666; text-decoration: none;">
+                <i class="fa fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <!-- Success Modal -->
+    <div id="success-modal">
+        <div class="success-modal-content">
+            <div class="success-icon">
+                <i class="fa fa-check"></i>
+            </div>
+            <h2>Tree Registered! 🎉</h2>
+            <p>Congratulations! You've made a positive impact on the environment.</p>
+            
+            <div class="success-stats">
+                <div class="success-stat">
+                    <div class="value" id="points-earned">+100</div>
+                    <div class="label">Points Earned</div>
+                </div>
+                <div class="success-stat">
+                    <div class="value">22 kg</div>
+                    <div class="label">CO₂/Year</div>
+                </div>
+            </div>
+            
+            <div id="generated-qr-code"></div>
+            <p class="qr-instructions">Save or print this QR code and attach it to your tree</p>
+            
+            <div class="success-actions">
+                <button class="btn btn-primary" onclick="plantAnother()">
+                    <i class="fa fa-plus"></i> Plant Another
+                </button>
+                <a href="dashboard.html" class="btn btn-secondary">
+                    Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="registration-loader">
+        <div class="loader-spinner"></div>
+        <p class="loader-text">Registering your tree...</p>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/qr-scanner.js"></script>
+    
+    <script>
+        let currentStep = 1;
+        let formData = {
+            campaign_id: 'personal',
+            species_id: null,
+            species_name: '',
+            location: null,
+            photo: null
+        };
+        
+        // Switch between Scan and Register tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.scanner-btn').forEach(btn => {
+                btn.classList.remove('active', 'primary');
+                btn.classList.add('secondary');
+            });
+            
+            document.getElementById(tab + '-tab').style.display = 'block';
+            document.getElementById('tab-' + tab).classList.remove('secondary');
+            document.getElementById('tab-' + tab).classList.add('active', 'primary');
+            
+            if (tab === 'scan') {
+                stopScanning();
+            }
+        }
+        
+        // QR Scanner functions
+        async function startScanning() {
+            await QRScannerModule.init();
+            await QRScannerModule.startScanning(handleScanResult);
+            
+            document.getElementById('start-scan-btn').style.display = 'none';
+            document.getElementById('stop-scan-btn').style.display = 'inline-flex';
+        }
+        
+        async function stopScanning() {
+            await QRScannerModule.stopScanning();
+            
+            document.getElementById('start-scan-btn').style.display = 'inline-flex';
+            document.getElementById('stop-scan-btn').style.display = 'none';
+        }
+        
+        function switchCamera() {
+            QRScannerModule.switchCamera();
+        }
+        
+        function handleScanResult(result) {
+            console.log('Scan result:', result);
+            
+            if (result.success && result.tree) {
+                displayTreeDetails(result.tree);
+            } else {
+                // Show error in a more friendly way
+                const container = document.getElementById('scan-result');
+                container.innerHTML = `
+                    <div class="text-center p-4">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">❌</div>
+                        <h3 style="color: #dc3545; margin-bottom: 15px;">Could Not Find Tree</h3>
+                        <p style="color: #666; margin-bottom: 20px;">${result.error || 'Unknown error occurred'}</p>
+                        <div class="success-actions">
+                            <button class="btn btn-secondary" onclick="document.getElementById('scan-result').style.display='none'; startScanning();">
+                                <i class="fa fa-qrcode"></i> Scan Again
+                            </button>
+                            <button class="btn btn-primary" onclick="switchTab('register')">
+                                <i class="fa fa-plus"></i> Register New Tree
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.style.display = 'block';
+            }
+        }
+        
+        function displayTreeDetails(tree) {
+            const container = document.getElementById('scan-result');
+            
+            // Calculate environmental impact
+            const plantingDate = new Date(tree.planting_date);
+            const monthsOld = Math.max(0, Math.floor((new Date() - plantingDate) / (30 * 24 * 60 * 60 * 1000)));
+            const co2Absorbed = Math.round((monthsOld / 12) * 22); // 22 kg per year
+            const waterSaved = Math.round((monthsOld / 12) * 400); // 400 L per year
+            
+            container.innerHTML = `
+                <div class="tree-hero">
+                    <img src="${tree.photo_url || 'assets/images/default-tree.jpg'}" alt="Tree" 
+                         onerror="this.src='https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400'">
+                    <div class="tree-hero-overlay">
+                        <h2>${tree.species?.common_name || 'Tree'}</h2>
+                        <p>${tree.species?.scientific_name || ''}</p>
+                    </div>
+                </div>
+                
+                <div class="tree-info-grid">
+                    <div class="tree-info-card">
+                        <i class="fa fa-calendar"></i>
+                        <div class="value">${plantingDate.toLocaleDateString()}</div>
+                        <div class="label">Planted</div>
+                    </div>
+                    <div class="tree-info-card">
+                        <i class="fa fa-heartbeat"></i>
+                        <div class="value" style="color: ${tree.health_status === 'healthy' ? '#4CAF50' : tree.health_status === 'needs_attention' ? '#ff9800' : '#dc3545'}">
+                            ${tree.health_status === 'healthy' ? '💚 Healthy' : tree.health_status === 'needs_attention' ? '🟡 Needs Care' : tree.health_status || '💚 Healthy'}
+                        </div>
+                        <div class="label">Health</div>
+                    </div>
+                    <div class="tree-info-card">
+                        <i class="fa fa-cloud"></i>
+                        <div class="value">${co2Absorbed} kg</div>
+                        <div class="label">CO₂ Absorbed</div>
+                    </div>
+                    <div class="tree-info-card">
+                        <i class="fa fa-tint"></i>
+                        <div class="value">${waterSaved} L</div>
+                        <div class="label">Water Saved</div>
+                    </div>
+                </div>
+                
+                <div class="tree-planter">
+                    <img src="${tree.planter?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(tree.planter?.full_name || 'User')}&background=4CAF50&color=fff`}" 
+                         alt="Planter">
+                    <div class="tree-planter-info">
+                        <h4>Planted by ${tree.planter?.full_name || 'Anonymous'}</h4>
+                        <p>@${tree.planter?.username || 'user'}</p>
+                    </div>
+                </div>
+                
+                <div class="success-actions">
+                    <a href="tree-details.html?id=${tree.id}" class="btn btn-success">
+                        <i class="fa fa-eye"></i> View Full Details
+                    </a>
+                    <button class="btn btn-secondary" onclick="document.getElementById('scan-result').style.display='none'; startScanning();">
+                        <i class="fa fa-qrcode"></i> Scan Another
+                    </button>
+                </div>
+            `;
+            container.style.display = 'block';
+        }
+        
+        // Registration form functions
+        function nextStep() {
+            if (validateStep(currentStep)) {
+                currentStep++;
+                updateStep();
+            }
+        }
+        
+        function prevStep() {
+            currentStep--;
+            updateStep();
+        }
+        
+        function goToStep(step) {
+            currentStep = step;
+            updateStep();
+        }
+        
+        function updateStep() {
+            // Update form steps
+            document.querySelectorAll('.form-step').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+            
+            // Update step indicators
+            document.querySelectorAll('.step-indicator').forEach((el, index) => {
+                el.classList.remove('active', 'completed');
+                if (index + 1 < currentStep) {
+                    el.classList.add('completed');
+                } else if (index + 1 === currentStep) {
+                    el.classList.add('active');
+                }
+            });
+            
+            // Update progress bar
+            const progress = (currentStep / 5) * 100;
+            document.getElementById('registration-progress').style.width = progress + '%';
+            
+            // Update review section if on step 5
+            if (currentStep === 5) {
+                updateReview();
+            }
+        }
+        
+        function validateStep(step) {
+            switch (step) {
+                case 1:
+                    return formData.campaign_id !== null;
+                case 2:
+                    if (!formData.species_id) {
+                        alert('Please select a tree species');
+                        return false;
+                    }
+                    return true;
+                case 3:
+                    if (!formData.location) {
+                        alert('Location is required. Please enable GPS.');
+                        return false;
+                    }
+                    return true;
+                case 4:
+                    // Photo is optional but encouraged
+                    return true;
+                default:
+                    return true;
+            }
+        }
+        
+        function updateReview() {
+            document.getElementById('review-campaign').textContent = formData.campaign_id === 'personal' ? 'Personal Planting' : formData.campaign_name || 'Campaign';
+            document.getElementById('review-species').textContent = formData.species_name || 'Not selected';
+            document.getElementById('review-location').textContent = formData.location ? 
+                `${formData.location.latitude.toFixed(4)}, ${formData.location.longitude.toFixed(4)}` : 'Not set';
+            document.getElementById('review-photo').textContent = formData.photo ? 'Uploaded ✓' : 'Not uploaded';
+        }
+        
+        // Campaign selection
+        function selectCampaign(id, name) {
+            formData.campaign_id = id;
+            formData.campaign_name = name || 'Personal Planting';
+            
+            document.querySelectorAll('.campaign-select-item').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelector(`.campaign-select-item[data-id="${id}"]`)?.classList.add('selected');
+        }
+        
+        // Species selection
+        function selectSpecies(id, name) {
+            formData.species_id = id;
+            formData.species_name = name;
+            
+            document.getElementById('species-search').value = name;
+            document.getElementById('species-results').innerHTML = '';
+            document.getElementById('selected-species').style.display = 'block';
+            document.getElementById('selected-species-name').textContent = name;
+        }
+        
+        // Location
+        let locationMap = null;
+        let locationMarker = null;
+        
+        async function refreshLocation() {
+            document.getElementById('current-location').innerHTML = `
+                <i class="fa fa-spinner fa-spin"></i> Getting location...
+            `;
+            
+            formData.location = await QRScannerModule.getCurrentLocation();
+            if (formData.location) {
+                document.getElementById('current-location').innerHTML = `
+                    <i class="fa fa-check-circle" style="color: green;"></i>
+                    Lat: ${formData.location.latitude.toFixed(6)}, 
+                    Long: ${formData.location.longitude.toFixed(6)}
+                `;
+                
+                // Show map preview using Leaflet
+                const mapContainer = document.getElementById('location-map');
+                if (mapContainer) {
+                    const lat = formData.location.latitude;
+                    const lng = formData.location.longitude;
+                    
+                    // Clear previous content
+                    mapContainer.innerHTML = '';
+                    mapContainer.style.height = '200px';
+                    
+                    // Initialize Leaflet map
+                    if (!locationMap) {
+                        locationMap = L.map('location-map').setView([lat, lng], 15);
+                        
+                        // Add OpenStreetMap tiles (FREE!)
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '© OpenStreetMap'
+                        }).addTo(locationMap);
+                    } else {
+                        locationMap.setView([lat, lng], 15);
+                    }
+                    
+                    // Add/update marker
+                    if (locationMarker) {
+                        locationMarker.setLatLng([lat, lng]);
+                    } else {
+                        locationMarker = L.marker([lat, lng]).addTo(locationMap)
+                            .bindPopup('🌳 Your tree will be planted here!')
+                            .openPopup();
+                    }
+                }
+            } else {
+                document.getElementById('current-location').innerHTML = `
+                    <i class="fa fa-exclamation-circle" style="color: red;"></i>
+                    Unable to get location. Please enable GPS.
+                `;
+            }
+        }
+        
+        // Photo upload
+        document.getElementById('tree-photo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                formData.photo = file;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('photo-preview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    preview.parentElement.classList.add('has-photo');
+                    preview.parentElement.querySelector('i').style.display = 'none';
+                    preview.parentElement.querySelector('p').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Form submission
+        document.getElementById('tree-registration-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!AuthService.isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Ensure we have location
+            if (!formData.location) {
+                await refreshLocation();
+            }
+            
+            // Show loader
+            document.getElementById('registration-loader').style.display = 'flex';
+            
+            try {
+                // Generate QR code ID
+                const qrCodeId = GreenSprintDB.qrCodes.generateId();
+                
+                // Prepare location data
+                const locationData = formData.location ? {
+                    type: 'Point',
+                    coordinates: [formData.location.longitude, formData.location.latitude]
+                } : null;
+                
+                // Create tree record first (without photo)
+                const treeData = {
+                    campaign_id: formData.campaign_id === 'personal' ? null : formData.campaign_id,
+                    species_id: formData.species_id,
+                    planter_id: AuthService.getUser().id,
+                    qr_code_id: qrCodeId,
+                    location: locationData,
+                    latitude: formData.location?.latitude || null,
+                    longitude: formData.location?.longitude || null,
+                    planting_date: new Date().toISOString().split('T')[0],
+                    photo_url: null,
+                    health_status: 'healthy',
+                    survival_status: true,
+                    notes: document.querySelector('textarea[name="notes"]')?.value || ''
+                };
+                
+                console.log('Creating tree:', treeData);
+                const tree = await GreenSprintDB.trees.create(treeData);
+                
+                if (!tree || !tree.id) {
+                    throw new Error('Failed to create tree record');
+                }
+                
+                // Upload photo with actual tree ID
+                if (formData.photo && formData.photo instanceof File) {
+                    try {
+                        const photoUrl = await GreenSprintDB.trees.uploadPhoto(tree.id, formData.photo);
+                        if (photoUrl) {
+                            await GreenSprintDB.trees.update(tree.id, { photo_url: photoUrl });
+                        }
+                    } catch (photoError) {
+                        console.warn('Photo upload failed:', photoError);
+                    }
+                }
+                
+                // Update user stats
+                try {
+                    await GreenSprintDB.users.incrementTreeCount(AuthService.getUser().id);
+                    await GreenSprintDB.users.addPoints(
+                        AuthService.getUser().id,
+                        CONFIG.POINTS?.TREE_PLANTED || 50,
+                        'Planted a tree'
+                    );
+                } catch (statsError) {
+                    console.warn('Stats update error:', statsError);
+                }
+                
+                // Hide loader
+                document.getElementById('registration-loader').style.display = 'none';
+                
+                // Show success modal
+                document.getElementById('points-earned').textContent = '+' + (CONFIG.POINTS?.TREE_PLANTED || 50);
+                
+                // Generate QR code with tree_id for URL generation
+                QRScannerModule.renderQRCode('generated-qr-code', {
+                    id: qrCodeId,
+                    tree_id: tree.id
+                }, 200);
+                
+                document.getElementById('success-modal').style.display = 'flex';
+                
+            } catch (error) {
+                document.getElementById('registration-loader').style.display = 'none';
+                console.error('Tree registration error:', error);
+                alert('Error registering tree: ' + error.message);
+            }
+        });
+        
+        function plantAnother() {
+            // Reset form
+            currentStep = 1;
+            formData = {
+                campaign_id: 'personal',
+                species_id: null,
+                species_name: '',
+                location: null,
+                photo: null
+            };
+            
+            document.getElementById('success-modal').style.display = 'none';
+            document.getElementById('tree-registration-form').reset();
+            document.getElementById('photo-preview').style.display = 'none';
+            document.getElementById('selected-species').style.display = 'none';
+            
+            updateStep();
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            GreenSprintDB.init();
+            await AuthService.init();
+            
+            if (!AuthService.isLoggedIn()) {
+                window.location.href = 'login.html?redirect=tree-tracker.html';
+                return;
+            }
+            
+            // Get location
+            refreshLocation();
+            
+            // Load campaigns
+            try {
+                const campaigns = await GreenSprintDB.campaigns.getAll({ status: 'active' });
+                const container = document.getElementById('campaign-list');
+                
+                campaigns.forEach(c => {
+                    container.innerHTML += `
+                        <div class="campaign-select-item" data-id="${c.id}" onclick="selectCampaign('${c.id}', '${c.campaign_name}')">
+                            <h4>📋 ${c.campaign_name}</h4>
+                            <p>${c.trees_planted}/${c.target_trees} trees</p>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error('Failed to load campaigns:', error);
+            }
+            
+            // Load popular species
+            try {
+                const species = await GreenSprintDB.species.getAll();
+                const container = document.getElementById('popular-species-list');
+                
+                species.slice(0, 6).forEach(s => {
+                    container.innerHTML += `
+                        <div class="campaign-select-item" onclick="selectSpecies('${s.id}', '${s.common_name}')">
+                            <h4>🌳 ${s.common_name}</h4>
+                            <p><em>${s.scientific_name}</em></p>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error('Failed to load species:', error);
+            }
+            
+            // Species search
+            document.getElementById('species-search').addEventListener('input', async function() {
+                const query = this.value;
+                if (query.length < 2) {
+                    document.getElementById('species-results').innerHTML = '';
+                    return;
+                }
+                
+                try {
+                    const species = await GreenSprintDB.species.search(query);
+                    const container = document.getElementById('species-results');
+                    
+                    container.innerHTML = species.map(s => `
+                        <div class="species-item" onclick="selectSpecies('${s.id}', '${s.common_name}')">
+                            <strong>${s.common_name}</strong>
+                            <small>${s.scientific_name}</small>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Species search error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

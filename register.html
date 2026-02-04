@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Green Sprint</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/auth.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="auth-page">
+        <!-- Left Panel - Branding -->
+        <div class="auth-branding">
+            <div class="logo">
+                <img src="assets/images/green spirt (1).png" alt="Green Sprint">
+                <h1>Green Sprint</h1>
+            </div>
+            <h2>Start Your Environmental Journey Today</h2>
+            <p>Join thousands of eco-warriors making a real difference. Plant trees, track your impact, and become part of the solution to climate change.</p>
+            
+            <div class="auth-features">
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">🎯</div>
+                    <span>Set Personal & Team Goals</span>
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">📱</div>
+                    <span>Scan QR Codes to Register Trees</span>
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">🌍</div>
+                    <span>See Your Global Impact</span>
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">🎖️</div>
+                    <span>Earn Badges & Achievements</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Register Form -->
+        <div class="auth-form-panel">
+            <div class="auth-form-container">
+                <div class="auth-form-header">
+                    <h2>Create Account</h2>
+                    <p>Join the green revolution</p>
+                </div>
+                
+                <!-- Error/Success Message -->
+                <div id="auth-message" class="alert" style="display: none;"></div>
+                
+                <form class="auth-form" id="register-form">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-user"></i>
+                            <input type="text" class="form-control" id="register-fullname" 
+                                   placeholder="Enter your full name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-at"></i>
+                            <input type="text" class="form-control" id="register-username" 
+                                   placeholder="Choose a username" required pattern="[a-zA-Z0-9_]{3,20}">
+                        </div>
+                        <small style="color: #888; font-size: 12px;">3-20 characters, letters, numbers, and underscores only</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-envelope"></i>
+                            <input type="email" class="form-control" id="register-email" 
+                                   placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-lock"></i>
+                            <input type="password" class="form-control" id="register-password" 
+                                   placeholder="Create a password" required minlength="8">
+                            <button type="button" class="toggle-password" onclick="togglePassword('register-password')">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-bar">
+                                <div class="strength-bar-fill" id="password-strength-bar"></div>
+                            </div>
+                            <span class="strength-text" id="password-strength-text"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-lock"></i>
+                            <input type="password" class="form-control" id="register-confirm-password" 
+                                   placeholder="Confirm your password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" id="agree-terms" required>
+                        <label for="agree-terms">I agree to the <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a></label>
+                    </div>
+                    
+                    <button type="submit" class="btn-auth" id="register-btn">
+                        <span class="spinner"></span>
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="auth-divider">
+                    <span>or sign up with</span>
+                </div>
+                
+                <div class="social-login">
+                    <button type="button" class="btn-social" onclick="loginWithGoogle()">
+                        <img src="https://www.google.com/favicon.ico" alt="Google">
+                        Sign up with Google
+                    </button>
+                </div>
+                
+                <div class="auth-form-footer">
+                    <p>Already have an account? <a href="login.html">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/auth.js"></script>
+    
+    <script>
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        // Password strength checker
+        document.getElementById('register-password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.getElementById('password-strength-bar');
+            const strengthText = document.getElementById('password-strength-text');
+            
+            let strength = 0;
+            let strengthClass = '';
+            let strengthLabel = '';
+            
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            switch (strength) {
+                case 0:
+                case 1:
+                    strengthClass = 'weak';
+                    strengthLabel = 'Weak';
+                    break;
+                case 2:
+                    strengthClass = 'fair';
+                    strengthLabel = 'Fair';
+                    break;
+                case 3:
+                case 4:
+                    strengthClass = 'good';
+                    strengthLabel = 'Good';
+                    break;
+                case 5:
+                    strengthClass = 'strong';
+                    strengthLabel = 'Strong';
+                    break;
+            }
+            
+            strengthBar.className = 'strength-bar-fill ' + strengthClass;
+            strengthText.className = 'strength-text ' + strengthClass;
+            strengthText.textContent = password.length > 0 ? strengthLabel : '';
+        });
+        
+        // Show message
+        function showMessage(message, type) {
+            const msgEl = document.getElementById('auth-message');
+            msgEl.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
+            msgEl.className = `alert alert-${type}`;
+            msgEl.style.display = 'flex';
+        }
+        
+        // Register form submit
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('register-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            const fullName = document.getElementById('register-fullname').value;
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                return;
+            }
+            
+            try {
+                // Initialize Supabase if needed
+                if (!GreenSprintDB.supabase()) {
+                    GreenSprintDB.init();
+                }
+                
+                const result = await AuthService.register(email, password, {
+                    fullName: fullName,
+                    username: username
+                });
+                
+                if (result.success) {
+                    showMessage(result.message || 'Account created! Please check your email to verify.', 'success');
+                    
+                    // Redirect to login after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    showMessage(result.error || 'Registration failed. Please try again.', 'error');
+                }
+            } catch (error) {
+                showMessage(error.message || 'An error occurred. Please try again.', 'error');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+        
+        // Google signup
+        async function loginWithGoogle() {
+            try {
+                if (!GreenSprintDB.supabase()) {
+                    GreenSprintDB.init();
+                }
+                
+                const result = await AuthService.loginWithGoogle();
+                
+                if (!result.success) {
+                    showMessage(result.error || 'Google signup failed', 'error');
+                }
+            } catch (error) {
+                showMessage(error.message || 'An error occurred', 'error');
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            GreenSprintDB.init();
+        });
+    </script>
+</body>
+</html>

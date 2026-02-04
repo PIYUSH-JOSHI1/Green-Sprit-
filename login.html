@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Green Sprint</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/auth.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="auth-page">
+        <!-- Left Panel - Branding -->
+        <div class="auth-branding">
+            <div class="logo">
+                <img src="assets/images/green spirt (1).png" alt="Green Sprint">
+                <h1>Green Sprint</h1>
+            </div>
+            <h2>Join the Movement to Protect Our Planet</h2>
+            <p>Track your environmental impact, plant trees, and earn rewards for making a difference. Together, we can create a greener tomorrow.</p>
+            
+            <div class="auth-features">
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">🌳</div>
+                    <span>Plant & Track Trees with QR Codes</span>
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">🏆</div>
+                    <span>Earn Points & Climb the Leaderboard</span>
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">📊</div>
+                    <span>Measure Your Environmental Impact</span>
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">🤝</div>
+                    <span>Join Campaigns & Build Community</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Login Form -->
+        <div class="auth-form-panel">
+            <div class="auth-form-container">
+                <div class="auth-form-header">
+                    <h2>Welcome Back!</h2>
+                    <p>Sign in to continue your environmental journey</p>
+                </div>
+                
+                <!-- Error/Success Message -->
+                <div id="auth-message" class="alert" style="display: none;"></div>
+                
+                <form class="auth-form" id="login-form">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-envelope"></i>
+                            <input type="email" class="form-control" id="login-email" 
+                                   placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-lock"></i>
+                            <input type="password" class="form-control" id="login-password" 
+                                   placeholder="Enter your password" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('login-password')">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-check">
+                            <input type="checkbox" id="remember-me">
+                            <label for="remember-me">Remember me</label>
+                        </div>
+                        <a href="forgot-password.html" class="forgot-password">Forgot Password?</a>
+                    </div>
+                    
+                    <button type="submit" class="btn-auth" id="login-btn">
+                        <span class="spinner"></span>
+                        Sign In
+                    </button>
+                </form>
+                
+                <div class="auth-divider">
+                    <span>or continue with</span>
+                </div>
+                
+                <div class="social-login">
+                    <button type="button" class="btn-social" onclick="loginWithGoogle()">
+                        <img src="https://www.google.com/favicon.ico" alt="Google">
+                        Continue with Google
+                    </button>
+                </div>
+                
+                <div class="auth-form-footer">
+                    <p>Don't have an account? <a href="register.html">Sign Up</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/auth.js"></script>
+    
+    <script>
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        // Show message
+        function showMessage(message, type) {
+            const msgEl = document.getElementById('auth-message');
+            msgEl.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
+            msgEl.className = `alert alert-${type}`;
+            msgEl.style.display = 'flex';
+        }
+        
+        // Hide message
+        function hideMessage() {
+            document.getElementById('auth-message').style.display = 'none';
+        }
+        
+        // Login form submit
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessage();
+            
+            const btn = document.getElementById('login-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                // Initialize Supabase if needed
+                if (!GreenSprintDB.supabase()) {
+                    GreenSprintDB.init();
+                }
+                
+                const result = await AuthService.login(email, password);
+                
+                if (result.success) {
+                    showMessage('Login successful! Redirecting...', 'success');
+                    
+                    // Check for redirect URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirect = urlParams.get('redirect') || 'dashboard.html';
+                    
+                    setTimeout(() => {
+                        window.location.href = redirect;
+                    }, 1000);
+                } else {
+                    showMessage(result.error || 'Login failed. Please try again.', 'error');
+                }
+            } catch (error) {
+                showMessage(error.message || 'An error occurred. Please try again.', 'error');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+        
+        // Google login
+        async function loginWithGoogle() {
+            try {
+                if (!GreenSprintDB.supabase()) {
+                    GreenSprintDB.init();
+                }
+                
+                const result = await AuthService.loginWithGoogle();
+                
+                if (!result.success) {
+                    showMessage(result.error || 'Google login failed', 'error');
+                }
+            } catch (error) {
+                showMessage(error.message || 'An error occurred', 'error');
+            }
+        }
+        
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', async () => {
+            GreenSprintDB.init();
+            
+            const isLoggedIn = await AuthService.checkSession();
+            if (isLoggedIn) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community | Green Sprint</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    
+    <!-- Bootstrap -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    
+    <style>
+        .community-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 50px 40px;
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .community-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .community-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .community-tab {
+            padding: 12px 25px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .community-tab:hover, .community-tab.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .feed-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .feed-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .feed-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .feed-user-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .feed-user-info span {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .feed-content {
+            margin-bottom: 20px;
+        }
+        
+        .feed-content p {
+            font-size: 1rem;
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .feed-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .feed-stats {
+            display: flex;
+            gap: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .feed-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .feed-stat:hover {
+            color: var(--primary-color);
+        }
+        
+        .feed-stat.liked {
+            color: #e74c3c;
+        }
+        
+        .comments-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .comments-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        
+        .comment-input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .comment-input-container input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .comment-input-container input:focus {
+            border-color: var(--primary-color);
+        }
+        
+        .comment-input-container button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .comment-input-container button:hover {
+            transform: scale(1.05);
+        }
+        
+        .like-btn i {
+            transition: all 0.3s ease;
+        }
+        
+        .like-btn:hover i {
+            transform: scale(1.2);
+        }
+        
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .member-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+        
+        .member-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+        
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 4px solid #f0f0f0;
+        }
+        
+        .member-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .member-username {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .member-stats {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .member-stat .value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .member-stat .label {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        
+        .member-badges {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .member-badges span {
+            font-size: 1.2rem;
+        }
+        
+        .create-post-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .create-post-card textarea {
+            width: 100%;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 15px;
+            resize: none;
+            font-size: 1rem;
+            font-family: inherit;
+            margin-bottom: 15px;
+        }
+        
+        .create-post-card textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        
+        .create-post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .post-attachments {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .attachment-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+        
+        .attachment-btn:hover {
+            color: var(--primary-color);
+        }
+        
+        @media (max-width: 768px) {
+            .community-header {
+                padding: 30px 20px;
+            }
+            
+            .community-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .members-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+    </button>
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <img src="assets/images/green spirt (1).png" alt="Green Sprint">
+                <h2>Green Sprint</h2>
+            </div>
+            
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html"><i class="fa fa-home"></i><span>Dashboard</span></a></li>
+                <li><a href="tree-tracker.html"><i class="fa fa-qrcode"></i><span>Plant Tree</span></a></li>
+                <li><a href="my-trees.html"><i class="fa fa-tree"></i><span>My Trees</span></a></li>
+                <li><a href="campaigns.html"><i class="fa fa-bullhorn"></i><span>Campaigns</span></a></li>
+                <li><a href="leaderboard.html"><i class="fa fa-trophy"></i><span>Leaderboard</span></a></li>
+                <li><a href="analytics.html"><i class="fa fa-chart-line"></i><span>Analytics</span></a></li>
+                <li><a href="community.html" class="active"><i class="fa fa-users"></i><span>Community</span></a></li>
+                <li><a href="profile.html"><i class="fa fa-user"></i><span>Profile</span></a></li>
+                <li><a href="#" onclick="logout()"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
+            </ul>
+            
+            <div class="sidebar-user">
+                <img src="assets/images/default-avatar.png" alt="User" id="sidebar-avatar">
+                <div class="sidebar-user-info">
+                    <h4 id="sidebar-username">User</h4>
+                    <span>Member</span>
+                </div>
+            </div>
+        </aside>
+        
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+        
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Header -->
+            <div class="community-header">
+                <h1>👥 Community</h1>
+                <p>Connect with fellow eco-warriors and share your green journey</p>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="community-tabs">
+                <button class="community-tab active" data-tab="feed" onclick="switchTab('feed')">
+                    <i class="fa fa-newspaper"></i> Feed
+                </button>
+                <button class="community-tab" data-tab="members" onclick="switchTab('members')">
+                    <i class="fa fa-users"></i> Members
+                </button>
+                <button class="community-tab" data-tab="achievements" onclick="switchTab('achievements')">
+                    <i class="fa fa-trophy"></i> Achievements
+                </button>
+            </div>
+            
+            <!-- Feed Tab -->
+            <div id="feed-tab" class="tab-content">
+                <!-- Create Post -->
+                <div class="create-post-card">
+                    <textarea placeholder="Share your tree planting story..." rows="3" id="post-content"></textarea>
+                    <div class="create-post-actions">
+                        <div class="post-attachments">
+                            <button class="attachment-btn" onclick="document.getElementById('post-image').click()">
+                                <i class="fa fa-image"></i>
+                            </button>
+                            <button class="attachment-btn">
+                                <i class="fa fa-map-marker-alt"></i>
+                            </button>
+                            <button class="attachment-btn">
+                                <i class="fa fa-tree"></i>
+                            </button>
+                            <input type="file" id="post-image" accept="image/*" style="display: none;">
+                        </div>
+                        <button class="btn btn-primary" onclick="createPost()">
+                            <i class="fa fa-paper-plane"></i> Post
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Feed -->
+                <div id="feed-container">
+                    <!-- Posts will be loaded here -->
+                    <div style="text-align: center; padding: 50px;">
+                        <i class="fa fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i>
+                        <p style="margin-top: 15px;">Loading feed...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Members Tab -->
+            <div id="members-tab" class="tab-content" style="display: none;">
+                <div class="members-grid" id="members-grid">
+                    <!-- Members will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Achievements Tab -->
+            <div id="achievements-tab" class="tab-content" style="display: none;">
+                <div id="achievements-container">
+                    <!-- Recent achievements will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/auth.js"></script>
+    
+    <script>
+        let currentTab = 'feed';
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+        
+        async function logout() {
+            await AuthService.logout();
+        }
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            document.querySelectorAll('.community-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.community-tab[data-tab="${tab}"]`).classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.getElementById(`${tab}-tab`).style.display = 'block';
+            
+            if (tab === 'members' && document.getElementById('members-grid').children.length <= 1) {
+                loadMembers();
+            }
+            
+            if (tab === 'achievements' && document.getElementById('achievements-container').children.length <= 1) {
+                loadAchievements();
+            }
+        }
+        
+        function formatTimeAgo(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return Math.floor(diff / 60) + ' min ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + ' hours ago';
+            if (diff < 604800) return Math.floor(diff / 86400) + ' days ago';
+            
+            return date.toLocaleDateString();
+        }
+        
+        function renderFeed(posts) {
+            const container = document.getElementById('feed-container');
+            
+            if (!posts || posts.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px;">
+                        <i class="fa fa-newspaper fa-3x" style="color: #ddd; margin-bottom: 20px;"></i>
+                        <h3 style="color: #888;">No posts yet</h3>
+                        <p style="color: #aaa;">Be the first to share your tree planting story!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = posts.map(post => {
+                const user = post.author || post.user || {};
+                const likeCount = post.like_count || 0;
+                return `
+                    <div class="feed-card" id="post-${post.id}">
+                        <div class="feed-header">
+                            <img class="feed-avatar" src="${user.avatar_url || 'assets/images/default-avatar.png'}" alt="${user.full_name || 'User'}">
+                            <div class="feed-user-info">
+                                <h4>${user.full_name || user.username || 'Green Champion'}</h4>
+                                <span>${formatTimeAgo(post.created_at)}</span>
+                            </div>
+                        </div>
+                        <div class="feed-content">
+                            <p>${post.content}</p>
+                            ${post.image_url ? `<img class="feed-image" src="${post.image_url}" alt="Post image">` : ''}
+                        </div>
+                        <div class="feed-stats">
+                            <div class="feed-stat like-btn" onclick="toggleLike('${post.id}')" style="cursor: pointer;">
+                                <i class="fa fa-heart" id="heart-${post.id}"></i>
+                                <span id="like-count-${post.id}">${likeCount}</span>
+                            </div>
+                            <div class="feed-stat" onclick="toggleComments('${post.id}')" style="cursor: pointer;">
+                                <i class="fa fa-comment"></i>
+                                <span>Comment</span>
+                            </div>
+                            <div class="feed-stat" onclick="sharePost('${post.id}')" style="cursor: pointer;">
+                                <i class="fa fa-share"></i>
+                                <span>Share</span>
+                            </div>
+                        </div>
+                        <div class="comments-section" id="comments-${post.id}" style="display: none; padding: 15px; border-top: 1px solid #eee;">
+                            <div class="comments-list" id="comments-list-${post.id}"></div>
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px;">
+                                <button onclick="addComment('${post.id}')" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">
+                                    <i class="fa fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function sharePost(postId) {
+            const text = "Check out this amazing post on Green Sprint! 🌱🌍";
+            const url = window.location.origin + '/community.html';
+            
+            if (navigator.share) {
+                navigator.share({ title: 'Green Sprint', text: text, url: url });
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+            }
+        }
+        
+        // Track liked posts for this session
+        let likedPosts = new Set();
+        
+        async function toggleLike(postId) {
+            const user = AuthService.getUser();
+            if (!user) {
+                alert('Please login to like posts');
+                return;
+            }
+            
+            const heartIcon = document.getElementById(`heart-${postId}`);
+            const likeCountEl = document.getElementById(`like-count-${postId}`);
+            let currentCount = parseInt(likeCountEl.textContent) || 0;
+            
+            if (likedPosts.has(postId)) {
+                // Unlike
+                likedPosts.delete(postId);
+                heartIcon.style.color = '';
+                likeCountEl.textContent = Math.max(0, currentCount - 1);
+            } else {
+                // Like
+                likedPosts.add(postId);
+                heartIcon.style.color = '#e74c3c';
+                likeCountEl.textContent = currentCount + 1;
+            }
+        }
+        
+        function toggleComments(postId) {
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            if (commentsSection.style.display === 'none') {
+                commentsSection.style.display = 'block';
+                loadComments(postId);
+            } else {
+                commentsSection.style.display = 'none';
+            }
+        }
+        
+        // Store comments locally
+        let postComments = {};
+        
+        function loadComments(postId) {
+            const commentsList = document.getElementById(`comments-list-${postId}`);
+            const comments = postComments[postId] || [];
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<p style="color: #888; text-align: center; padding: 10px;">No comments yet. Be the first to comment!</p>';
+            } else {
+                commentsList.innerHTML = comments.map(c => `
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 10px;">
+                        <img src="${c.avatar || 'assets/images/default-avatar.png'}" style="width: 35px; height: 35px; border-radius: 50%;">
+                        <div>
+                            <strong style="font-size: 13px;">${c.name}</strong>
+                            <p style="margin: 5px 0 0; font-size: 14px;">${c.content}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function addComment(postId) {
+            const user = AuthService.getUser();
+            if (!user) {
+                alert('Please login to comment');
+                return;
+            }
+            
+            const input = document.getElementById(`comment-input-${postId}`);
+            const content = input.value.trim();
+            
+            if (!content) {
+                alert('Please write a comment');
+                return;
+            }
+            
+            const profile = AuthService.getProfile();
+            
+            // Add to local storage
+            if (!postComments[postId]) {
+                postComments[postId] = [];
+            }
+            
+            postComments[postId].push({
+                name: profile?.full_name || profile?.username || 'You',
+                avatar: profile?.avatar_url || 'assets/images/default-avatar.png',
+                content: content
+            });
+            
+            input.value = '';
+            loadComments(postId);
+        }
+        
+        function renderMembers(members) {
+            const grid = document.getElementById('members-grid');
+            
+            grid.innerHTML = members.map(member => {
+                const badges = member.badges || [];
+                const badgeEmojis = {
+                    seedling: '🌱', sapling: '🌿', tree_hugger: '🌳',
+                    forest_guardian: '🏞️', eco_warrior: '⚔️', nature_champion: '🏅'
+                };
+                
+                return `
+                    <div class="member-card">
+                        <img class="member-avatar" src="${member.avatar_url || 'assets/images/default-avatar.png'}" alt="${member.full_name}">
+                        <div class="member-name">${member.full_name || 'Anonymous'}</div>
+                        <div class="member-username">@${member.username}</div>
+                        <div class="member-stats">
+                            <div class="member-stat">
+                                <div class="value">${member.trees_planted || 0}</div>
+                                <div class="label">Trees</div>
+                            </div>
+                            <div class="member-stat">
+                                <div class="value">${member.total_points || 0}</div>
+                                <div class="label">Points</div>
+                            </div>
+                        </div>
+                        <div class="member-badges">
+                            ${badges.slice(0, 4).map(b => `<span>${badgeEmojis[b] || '🏆'}</span>`).join('')}
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="viewProfile('${member.id}')">
+                            View Profile
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function renderAchievements(achievements) {
+            const container = document.getElementById('achievements-container');
+            
+            container.innerHTML = achievements.map(a => {
+                const badgeEmojis = {
+                    seedling: '🌱', sapling: '🌿', tree_hugger: '🌳',
+                    forest_guardian: '🏞️', eco_warrior: '⚔️', nature_champion: '🏅',
+                    earth_protector: '🌍', climate_hero: '🦸'
+                };
+                
+                return `
+                    <div class="feed-card">
+                        <div class="feed-header">
+                            <img class="feed-avatar" src="${a.user?.avatar_url || 'assets/images/default-avatar.png'}" alt="${a.user?.full_name}">
+                            <div class="feed-user-info">
+                                <h4>${a.user?.full_name || 'Anonymous'}</h4>
+                                <span>${formatTimeAgo(a.achieved_at)}</span>
+                            </div>
+                        </div>
+                        <div class="feed-content">
+                            <p style="font-size: 1.2rem;">
+                                ${badgeEmojis[a.badge_id] || '🏆'} 
+                                Earned the <strong>${a.badge_id?.replace('_', ' ').toUpperCase()}</strong> badge!
+                            </p>
+                        </div>
+                        <div class="feed-stats">
+                            <div class="feed-stat">
+                                <i class="fa fa-thumbs-up"></i>
+                                <span>Congratulate</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        let selectedImage = null;
+        
+        // Handle image selection
+        document.addEventListener('DOMContentLoaded', () => {
+            const imageInput = document.getElementById('post-image');
+            if (imageInput) {
+                imageInput.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        selectedImage = e.target.files[0];
+                        alert('Image selected: ' + selectedImage.name);
+                    }
+                });
+            }
+        });
+        
+        async function createPost() {
+            const content = document.getElementById('post-content').value.trim();
+            if (!content) {
+                alert('Please write something to share!');
+                return;
+            }
+            
+            try {
+                const user = AuthService.getUser();
+                if (!user) {
+                    alert('Please login to post');
+                    return;
+                }
+                
+                let imageUrl = null;
+                
+                // Upload image if selected
+                if (selectedImage) {
+                    try {
+                        imageUrl = await GreenSprintDB.storage.uploadImage(selectedImage, 'posts');
+                    } catch (e) {
+                        console.log('Image upload failed, posting without image');
+                    }
+                }
+                
+                // Create post in database - only required fields
+                const postData = {
+                    user_id: user.id,
+                    content: content
+                };
+                
+                await GreenSprintDB.community.createPost(postData);
+                
+                alert('Post shared successfully! 🌱');
+                document.getElementById('post-content').value = '';
+                selectedImage = null;
+                document.getElementById('post-image').value = '';
+                
+                // Reload feed to show new post
+                loadFeed();
+            } catch (error) {
+                console.error('Error creating post:', error);
+                alert('Error creating post: ' + error.message);
+            }
+        }
+        
+        async function likePost(postId) {
+            try {
+                const user = AuthService.getUser();
+                if (!user) {
+                    alert('Please login to like posts');
+                    return;
+                }
+                
+                await GreenSprintDB.community.likePost(postId, user.id);
+                
+                // Reload feed to update like count
+                loadFeed();
+            } catch (error) {
+                console.log('Already liked or error:', error.message);
+            }
+        }
+        
+        function viewProfile(userId) {
+            window.location.href = `profile.html?user=${userId}`;
+        }
+        
+        async function loadFeed() {
+            const container = document.getElementById('feed-container');
+            
+            try {
+                // Load community posts from database
+                let posts = [];
+                try {
+                    posts = await GreenSprintDB.community.getPosts(20);
+                    console.log('Loaded posts:', posts);
+                } catch (e) {
+                    console.log('Error loading posts:', e.message);
+                }
+                
+                // Render posts (even if empty - will show "No posts yet")
+                renderFeed(posts || []);
+                
+            } catch (error) {
+                console.error('Error loading feed:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #888;">
+                        <i class="fa fa-newspaper fa-3x" style="color: #ddd; margin-bottom: 20px;"></i>
+                        <h3 style="color: #888;">No posts yet</h3>
+                        <p style="color: #aaa;">Be the first to share your tree planting story!</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function getActivityMessage(activity) {
+            switch (activity.action_type) {
+                case 'tree_planted':
+                    return `🌳 Planted a new tree! Let's grow the forest together.`;
+                case 'campaign_created':
+                    return `📋 Started a new tree planting campaign. Join the movement!`;
+                case 'campaign_joined':
+                    return `🤝 Joined a tree planting campaign. Together we can make a difference!`;
+                case 'badge_earned':
+                    return `🏆 Earned a new achievement badge! Hard work pays off.`;
+                default:
+                    return `💚 Active in the Green Sprint community!`;
+            }
+        }
+        
+        async function loadMembers() {
+            const grid = document.getElementById('members-grid');
+            grid.innerHTML = '<div style="text-align: center; padding: 30px; grid-column: 1/-1;"><i class="fa fa-spinner fa-spin"></i> Loading members...</div>';
+            
+            try {
+                const members = await GreenSprintDB.users.getLeaderboard(50);
+                if (members && members.length > 0) {
+                    renderMembers(members);
+                } else {
+                    grid.innerHTML = '<div style="text-align: center; padding: 50px; grid-column: 1/-1;"><p>No members yet. Be the first to join!</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading members:', error);
+                grid.innerHTML = '<div style="text-align: center; padding: 50px; grid-column: 1/-1;"><p>Could not load members.</p></div>';
+            }
+        }
+        
+        async function loadAchievements() {
+            const container = document.getElementById('achievements-container');
+            container.innerHTML = '<div style="text-align: center; padding: 30px;"><i class="fa fa-spinner fa-spin"></i> Loading achievements...</div>';
+            
+            try {
+                const achievements = await GreenSprintDB.achievements.getRecent(20);
+                if (achievements && achievements.length > 0) {
+                    renderAchievements(achievements);
+                } else {
+                    container.innerHTML = '<div style="text-align: center; padding: 50px;"><i class="fa fa-trophy fa-3x" style="color: #ddd; margin-bottom: 20px;"></i><h3 style="color: #888;">No achievements yet</h3><p style="color: #aaa;">Plant trees to earn badges!</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading achievements:', error);
+                container.innerHTML = '<div style="text-align: center; padding: 50px;"><i class="fa fa-trophy fa-3x" style="color: #ddd; margin-bottom: 20px;"></i><h3 style="color: #888;">No achievements yet</h3><p style="color: #aaa;">Plant trees to earn badges!</p></div>';
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            GreenSprintDB.init();
+            await AuthService.init();
+            
+            if (!AuthService.isLoggedIn()) {
+                window.location.href = 'login.html?redirect=community.html';
+                return;
+            }
+            
+            // Update sidebar
+            const profile = AuthService.getProfile();
+            if (profile) {
+                document.getElementById('sidebar-username').textContent = profile.full_name || profile.username;
+                document.getElementById('sidebar-avatar').src = profile.avatar_url || 'assets/images/default-avatar.png';
+            }
+            
+            // Load feed
+            loadFeed();
+        });
+    </script>
+</body>
+</html>

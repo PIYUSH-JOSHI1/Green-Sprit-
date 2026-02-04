@@ -1,0 +1,557 @@
+/**
+ * Green Sprint - Authentication Page Styles
+ * Login, Register, and Password Reset UI
+ */
+
+/* ============================================
+   Auth Page Layout
+   ============================================ */
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    background: linear-gradient(135deg, #2d5a27 0%, #4a9c3f 50%, #7bc96f 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Background decorations */
+.auth-page::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 80%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.auth-page::after {
+    content: '🌳';
+    position: absolute;
+    bottom: 5%;
+    left: 3%;
+    font-size: 100px;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+/* Left panel - branding */
+.auth-branding {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px;
+    color: white;
+}
+
+.auth-branding .logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.auth-branding .logo img {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+}
+
+.auth-branding .logo h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.auth-branding h2 {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.auth-branding p {
+    font-size: 18px;
+    opacity: 0.9;
+    line-height: 1.6;
+    max-width: 500px;
+}
+
+.auth-features {
+    margin-top: 40px;
+}
+
+.auth-feature {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.auth-feature-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.auth-feature span {
+    font-size: 16px;
+}
+
+/* Right panel - form */
+.auth-form-panel {
+    width: 500px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px;
+    position: relative;
+}
+
+.auth-form-container {
+    max-width: 380px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.auth-form-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.auth-form-header h2 {
+    font-size: 28px;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+}
+
+.auth-form-header p {
+    color: #666;
+    font-size: 15px;
+}
+
+/* ============================================
+   Form Styles
+   ============================================ */
+.auth-form .form-group {
+    margin-bottom: 22px;
+}
+
+.auth-form .form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.auth-form .form-control {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.auth-form .form-control:focus {
+    outline: none;
+    border-color: #2d5a27;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(45, 90, 39, 0.1);
+}
+
+.auth-form .form-control::placeholder {
+    color: #aaa;
+}
+
+/* Input with icon */
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon .form-control {
+    padding-left: 45px;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 16px;
+}
+
+.input-with-icon .toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 0;
+}
+
+.input-with-icon .toggle-password:hover {
+    color: #2d5a27;
+}
+
+/* Checkbox */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.form-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #2d5a27;
+    cursor: pointer;
+}
+
+.form-check label {
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+}
+
+.form-check label a {
+    color: #2d5a27;
+    text-decoration: none;
+}
+
+.form-check label a:hover {
+    text-decoration: underline;
+}
+
+/* Form row */
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.forgot-password {
+    color: #2d5a27;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Submit button */
+.btn-auth {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #2d5a27 0%, #4a9c3f 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(45, 90, 39, 0.3);
+}
+
+.btn-auth:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-auth .spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+}
+
+.btn-auth.loading .spinner {
+    display: inline-block;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Divider */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.auth-divider span {
+    padding: 0 15px;
+    color: #888;
+    font-size: 13px;
+}
+
+/* Social login buttons */
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 13px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: white;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-social:hover {
+    border-color: #2d5a27;
+    background: #fafafa;
+}
+
+.btn-social img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Form footer */
+.auth-form-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid #eee;
+}
+
+.auth-form-footer p {
+    color: #666;
+    font-size: 14px;
+}
+
+.auth-form-footer a {
+    color: #2d5a27;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   Error & Success Messages
+   ============================================ */
+.alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-error {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.alert-success {
+    background: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+
+.alert i {
+    font-size: 18px;
+}
+
+/* Field error */
+.form-control.error {
+    border-color: #dc2626;
+    background: #fef2f2;
+}
+
+.field-error {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ============================================
+   Password Strength Indicator
+   ============================================ */
+.password-strength {
+    margin-top: 10px;
+}
+
+.strength-bar {
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.strength-bar-fill {
+    height: 100%;
+    width: 0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.strength-bar-fill.weak {
+    width: 25%;
+    background: #dc2626;
+}
+
+.strength-bar-fill.fair {
+    width: 50%;
+    background: #f59e0b;
+}
+
+.strength-bar-fill.good {
+    width: 75%;
+    background: #10b981;
+}
+
+.strength-bar-fill.strong {
+    width: 100%;
+    background: #2d5a27;
+}
+
+.strength-text {
+    font-size: 12px;
+    color: #888;
+}
+
+.strength-text.weak { color: #dc2626; }
+.strength-text.fair { color: #f59e0b; }
+.strength-text.good { color: #10b981; }
+.strength-text.strong { color: #2d5a27; }
+
+/* ============================================
+   Verification Code Input
+   ============================================ */
+.verification-code-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.verification-code-group input {
+    width: 50px;
+    height: 60px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: #fafafa;
+    transition: all 0.3s ease;
+}
+
+.verification-code-group input:focus {
+    outline: none;
+    border-color: #2d5a27;
+    background: white;
+}
+
+.resend-code {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.resend-code p {
+    color: #666;
+    font-size: 14px;
+}
+
+.resend-code button {
+    background: none;
+    border: none;
+    color: #2d5a27;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.resend-code button:disabled {
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 1024px) {
+    .auth-branding {
+        display: none;
+    }
+    
+    .auth-form-panel {
+        width: 100%;
+        padding: 40px 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-form-panel {
+        padding: 30px 20px;
+    }
+    
+    .auth-form-header h2 {
+        font-size: 24px;
+    }
+    
+    .verification-code-group input {
+        width: 45px;
+        height: 55px;
+        font-size: 20px;
+    }
+}

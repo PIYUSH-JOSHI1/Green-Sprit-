@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | Green Sprint</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    
+    <!-- Bootstrap -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        .profile-header {
+            background: linear-gradient(135deg, #2d5a27 0%, #4a9c3f 100%);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255,255,255,0.3);
+            margin-bottom: 15px;
+        }
+        
+        .profile-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .profile-username {
+            opacity: 0.8;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .profile-level {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .profile-stat {
+            text-align: center;
+        }
+        
+        .profile-stat .value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .profile-stat .label {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        
+        .content-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        
+        .content-section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .impact-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .impact-card {
+            background: linear-gradient(135deg, #f8fdf8 0%, #e8f5e9 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #e0f0e0;
+        }
+        
+        .impact-card i {
+            font-size: 30px;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .impact-card .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d5a27;
+        }
+        
+        .impact-card .label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+        
+        .badge-item {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .badge-item.unlocked {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border: 2px solid #ffc107;
+            cursor: pointer;
+        }
+        
+        .badge-item.unlocked:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255,193,7,0.3);
+        }
+        
+        .badge-item.locked {
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+        
+        .badge-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .badge-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .badge-requirement {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .edit-form .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .edit-form label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .edit-form input,
+        .edit-form textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        .edit-form input:focus,
+        .edit-form textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .edit-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        /* Certificate Modal */
+        .certificate-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .certificate-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .certificate-preview {
+            background: linear-gradient(135deg, #f8fdf8 0%, #e8f5e9 100%);
+            padding: 40px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+            border: 3px solid #4CAF50;
+            margin: 20px;
+            border-radius: 15px;
+        }
+        
+        .certificate-badge {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .certificate-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d5a27;
+            margin-bottom: 10px;
+        }
+        
+        .certificate-subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .certificate-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .certificate-date {
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .certificate-actions {
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .certificate-actions button {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-download {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-share {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-close-cert {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-stats {
+                gap: 20px;
+            }
+            
+            .profile-stat .value {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+    </button>
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <img src="assets/images/green spirt (1).png" alt="Green Sprint">
+                <h2>Green Sprint</h2>
+            </div>
+            
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html"><i class="fa fa-home"></i><span>Dashboard</span></a></li>
+                <li><a href="tree-tracker.html"><i class="fa fa-qrcode"></i><span>Plant Tree</span></a></li>
+                <li><a href="my-trees.html"><i class="fa fa-tree"></i><span>My Trees</span></a></li>
+                <li><a href="campaigns.html"><i class="fa fa-flag"></i><span>Campaigns</span></a></li>
+                <li><a href="leaderboard.html"><i class="fa fa-trophy"></i><span>Leaderboard</span></a></li>
+                <li><a href="analytics.html"><i class="fa fa-chart-line"></i><span>Analytics</span></a></li>
+                <li><a href="community.html"><i class="fa fa-users"></i><span>Community</span></a></li>
+                <li><a href="profile.html" class="active"><i class="fa fa-user"></i><span>Profile</span></a></li>
+                <li><a href="#" onclick="logout()"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
+            </ul>
+            
+            <div class="sidebar-user">
+                <img src="assets/images/default-avatar.png" alt="User" id="sidebar-avatar">
+                <div class="sidebar-user-info">
+                    <h5 id="sidebar-username">User</h5>
+                    <span>Member</span>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <img src="assets/images/default-avatar.png" alt="Profile" class="profile-avatar" id="profile-avatar">
+                <h1 class="profile-name" id="profile-name">Loading...</h1>
+                <p class="profile-username" id="profile-username">@user</p>
+                <span class="profile-level" id="profile-level"><i class="fa fa-medal"></i> 🌱 Seedling</span>
+                
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="value" id="stat-trees">0</div>
+                        <div class="label">Trees Planted</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="value" id="stat-points">0</div>
+                        <div class="label">Green Points</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="value" id="stat-campaigns">0</div>
+                        <div class="label">Campaigns</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="value" id="stat-rank">#-</div>
+                        <div class="label">Global Rank</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Environmental Impact -->
+                    <div class="content-section">
+                        <h3><i class="fa fa-leaf text-success"></i> Your Environmental Impact</h3>
+                        <div class="impact-cards">
+                            <div class="impact-card">
+                                <i class="fa fa-cloud"></i>
+                                <div class="value" id="impact-co2">0 kg</div>
+                                <div class="label">CO<sub>2</sub> Absorbed/Year</div>
+                            </div>
+                            <div class="impact-card">
+                                <i class="fa fa-tint"></i>
+                                <div class="value" id="impact-water">0 L</div>
+                                <div class="label">Water Filtered/Year</div>
+                            </div>
+                            <div class="impact-card">
+                                <i class="fa fa-wind"></i>
+                                <div class="value" id="impact-oxygen">0 kg</div>
+                                <div class="label">Oxygen Produced/Year</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Badges -->
+                    <div class="content-section">
+                        <h3><i class="fa fa-award text-warning"></i> Your Badges</h3>
+                        <p style="color: #666; margin-bottom: 20px;">🎉 Click on an unlocked badge to download your certificate and share it!</p>
+                        <div class="badges-grid" id="badges-grid">
+                            <!-- Badges will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <!-- Edit Profile -->
+                    <div class="content-section">
+                        <h3><i class="fa fa-edit text-primary"></i> Edit Profile</h3>
+                        <form class="edit-form" id="edit-form" onsubmit="saveProfile(event)">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="edit-name" placeholder="Your name">
+                            </div>
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" id="edit-username" placeholder="username">
+                            </div>
+                            <div class="form-group">
+                                <label>Bio</label>
+                                <textarea id="edit-bio" placeholder="Tell us about yourself..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Location</label>
+                                <input type="text" id="edit-location" placeholder="City, Country">
+                            </div>
+                            <button type="submit" class="btn-save">
+                                <i class="fa fa-save"></i> Save Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Certificate Modal -->
+    <div class="certificate-modal" id="certificate-modal">
+        <div class="certificate-content">
+            <div class="certificate-preview">
+                <div class="certificate-badge" id="cert-badge-icon">🌱</div>
+                <div class="certificate-title" id="cert-badge-name">Seedling</div>
+                <div class="certificate-subtitle">Certificate of Achievement</div>
+                <div class="certificate-name" id="cert-user-name">User Name</div>
+                <div class="certificate-date">Awarded on <span id="cert-date">January 1, 2026</span></div>
+                <div style="margin-top: 15px; color: #4CAF50;">
+                    <i class="fa fa-tree"></i> <span id="cert-trees">0</span> Trees Planted
+                </div>
+            </div>
+            <div class="certificate-actions">
+                <button class="btn-download" onclick="downloadCertificate()">
+                    <i class="fa fa-download"></i> Download
+                </button>
+                <button class="btn-share" onclick="shareCertificate()">
+                    <i class="fa fa-share-alt"></i> Share
+                </button>
+                <button class="btn-close-cert" onclick="closeCertificateModal()">
+                    <i class="fa fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/auth.js"></script>
+    
+    <script>
+        let userProfile = null;
+        let currentBadgeForCertificate = null;
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+        
+        function logout() {
+            AuthService.logout();
+            window.location.href = 'index.html';
+        }
+        
+        function getBadgeInfo(badgeId) {
+            const badges = {
+                seedling: { name: 'Seedling', icon: '🌱', requirement: 'Plant your first tree', threshold: 1 },
+                sapling: { name: 'Sapling', icon: '🌿', requirement: 'Plant 5 trees', threshold: 5 },
+                tree_hugger: { name: 'Tree Hugger', icon: '🌳', requirement: 'Plant 10 trees', threshold: 10 },
+                forest_guardian: { name: 'Forest Guardian', icon: '🏞️', requirement: 'Plant 25 trees', threshold: 25 },
+                eco_warrior: { name: 'Eco Warrior', icon: '⚔️', requirement: 'Plant 50 trees', threshold: 50 },
+                nature_champion: { name: 'Nature Champion', icon: '🏅', requirement: 'Plant 100 trees', threshold: 100 },
+                earth_protector: { name: 'Earth Protector', icon: '🌍', requirement: 'Plant 250 trees', threshold: 250 },
+                climate_hero: { name: 'Climate Hero', icon: '🦸', requirement: 'Plant 500 trees', threshold: 500 }
+            };
+            return badges[badgeId] || { name: badgeId, icon: '🏆', requirement: '', threshold: 0 };
+        }
+        
+        function checkAndUnlockBadges(treesPlanted, currentBadges) {
+            const allBadgeIds = ['seedling', 'sapling', 'tree_hugger', 'forest_guardian', 'eco_warrior', 'nature_champion', 'earth_protector', 'climate_hero'];
+            const unlockedBadges = [...(currentBadges || [])];
+            
+            for (const badgeId of allBadgeIds) {
+                const badge = getBadgeInfo(badgeId);
+                if (treesPlanted >= badge.threshold && !unlockedBadges.includes(badgeId)) {
+                    unlockedBadges.push(badgeId);
+                }
+            }
+            
+            return unlockedBadges;
+        }
+        
+        function getUserLevel(points) {
+            if (points >= 10000) return { name: 'Climate Hero', icon: '🦸' };
+            if (points >= 5000) return { name: 'Earth Protector', icon: '🌍' };
+            if (points >= 2500) return { name: 'Nature Champion', icon: '🏅' };
+            if (points >= 1000) return { name: 'Eco Warrior', icon: '⚔️' };
+            if (points >= 500) return { name: 'Forest Guardian', icon: '🏞️' };
+            if (points >= 250) return { name: 'Tree Hugger', icon: '🌳' };
+            if (points >= 100) return { name: 'Sapling', icon: '🌿' };
+            return { name: 'Seedling', icon: '🌱' };
+        }
+        
+        function renderBadges(userBadges) {
+            const allBadges = ['seedling', 'sapling', 'tree_hugger', 'forest_guardian', 'eco_warrior', 'nature_champion', 'earth_protector', 'climate_hero'];
+            const grid = document.getElementById('badges-grid');
+            
+            grid.innerHTML = allBadges.map(id => {
+                const badge = getBadgeInfo(id);
+                const isUnlocked = userBadges.includes(id);
+                
+                return `
+                    <div class="badge-item ${isUnlocked ? 'unlocked' : 'locked'}" 
+                         ${isUnlocked ? `onclick="openBadgeCertificate('${id}')"` : ''}>
+                        <div class="badge-icon">${badge.icon}</div>
+                        <div class="badge-name">${badge.name}</div>
+                        <div class="badge-requirement">${isUnlocked ? '✅ Unlocked' : badge.requirement}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function openBadgeCertificate(badgeId) {
+            currentBadgeForCertificate = badgeId;
+            const badge = getBadgeInfo(badgeId);
+            const modal = document.getElementById('certificate-modal');
+            
+            document.getElementById('cert-badge-icon').textContent = badge.icon;
+            document.getElementById('cert-badge-name').textContent = badge.name;
+            document.getElementById('cert-user-name').textContent = userProfile?.full_name || 'Green Champion';
+            document.getElementById('cert-date').textContent = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', month: 'long', day: 'numeric' 
+            });
+            document.getElementById('cert-trees').textContent = userProfile?.trees_planted || 0;
+            
+            modal.style.display = 'flex';
+        }
+        
+        function closeCertificateModal() {
+            document.getElementById('certificate-modal').style.display = 'none';
+            currentBadgeForCertificate = null;
+        }
+        
+        async function downloadCertificate() {
+            if (!currentBadgeForCertificate) return;
+            
+            const badge = getBadgeInfo(currentBadgeForCertificate);
+            const userName = userProfile?.full_name || 'Green Champion';
+            
+            // Create certificate canvas
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1200;
+            canvas.height = 800;
+            
+            // Background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#f8fdf8');
+            gradient.addColorStop(1, '#e8f5e9');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Border
+            ctx.strokeStyle = '#4CAF50';
+            ctx.lineWidth = 10;
+            ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+            
+            // Title
+            ctx.fillStyle = '#2d5a27';
+            ctx.font = 'bold 48px Poppins, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Certificate of Achievement', canvas.width / 2, 120);
+            
+            // Badge icon
+            ctx.font = '120px Arial';
+            ctx.fillText(badge.icon, canvas.width / 2, 280);
+            
+            // Badge name
+            ctx.fillStyle = '#4CAF50';
+            ctx.font = 'bold 42px Poppins, sans-serif';
+            ctx.fillText(badge.name, canvas.width / 2, 360);
+            
+            // Awarded to
+            ctx.fillStyle = '#666';
+            ctx.font = '24px Poppins, sans-serif';
+            ctx.fillText('This certificate is awarded to', canvas.width / 2, 440);
+            
+            // User name
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 36px Poppins, sans-serif';
+            ctx.fillText(userName, canvas.width / 2, 500);
+            
+            // Achievement
+            ctx.fillStyle = '#666';
+            ctx.font = '20px Poppins, sans-serif';
+            ctx.fillText(`For planting ${userProfile?.trees_planted || 0} trees and earning the ${badge.name} badge`, canvas.width / 2, 560);
+            
+            // Date
+            ctx.fillText(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), canvas.width / 2, 620);
+            
+            // Green Sprint
+            ctx.fillStyle = '#4CAF50';
+            ctx.font = 'bold 28px Poppins, sans-serif';
+            ctx.fillText('🌱 Green Sprint', canvas.width / 2, 720);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = `GreenSprint_${badge.name}_Certificate.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function shareCertificate() {
+            if (!currentBadgeForCertificate) return;
+            
+            const badge = getBadgeInfo(currentBadgeForCertificate);
+            const text = `🎉 I just earned the ${badge.icon} ${badge.name} badge on Green Sprint by planting ${userProfile?.trees_planted || 0} trees! Join me in making the world greener! 🌍🌱`;
+            const url = window.location.origin;
+            
+            // Show share options modal
+            const shareOptions = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10001; display: flex; align-items: center; justify-content: center;" id="share-modal">
+                    <div style="background: white; border-radius: 20px; padding: 30px; max-width: 400px; width: 90%;">
+                        <h3 style="margin-bottom: 20px; text-align: center;">Share Your Achievement</h3>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                            <button onclick="shareToWhatsApp('${encodeURIComponent(text)}', '${url}')" style="padding: 15px; border: none; border-radius: 15px; background: #25D366; color: white; cursor: pointer;">
+                                <i class="fab fa-whatsapp" style="font-size: 24px;"></i><br>
+                                <small>WhatsApp</small>
+                            </button>
+                            <button onclick="shareToInstagram()" style="padding: 15px; border: none; border-radius: 15px; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; cursor: pointer;">
+                                <i class="fab fa-instagram" style="font-size: 24px;"></i><br>
+                                <small>Instagram</small>
+                            </button>
+                            <button onclick="shareToTwitter('${encodeURIComponent(text)}', '${url}')" style="padding: 15px; border: none; border-radius: 15px; background: #1DA1F2; color: white; cursor: pointer;">
+                                <i class="fab fa-twitter" style="font-size: 24px;"></i><br>
+                                <small>Twitter</small>
+                            </button>
+                            <button onclick="shareToFacebook('${url}')" style="padding: 15px; border: none; border-radius: 15px; background: #4267B2; color: white; cursor: pointer;">
+                                <i class="fab fa-facebook" style="font-size: 24px;"></i><br>
+                                <small>Facebook</small>
+                            </button>
+                            <button onclick="shareToLinkedIn('${url}', '${encodeURIComponent(text)}')" style="padding: 15px; border: none; border-radius: 15px; background: #0077B5; color: white; cursor: pointer;">
+                                <i class="fab fa-linkedin" style="font-size: 24px;"></i><br>
+                                <small>LinkedIn</small>
+                            </button>
+                            <button onclick="copyShareText('${text.replace(/'/g, "\\'")}', '${url}')" style="padding: 15px; border: none; border-radius: 15px; background: #666; color: white; cursor: pointer;">
+                                <i class="fa fa-copy" style="font-size: 24px;"></i><br>
+                                <small>Copy</small>
+                            </button>
+                        </div>
+                        <button onclick="document.getElementById('share-modal').remove()" style="width: 100%; margin-top: 20px; padding: 12px; background: #f5f5f5; border: none; border-radius: 10px; cursor: pointer;">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', shareOptions);
+        }
+        
+        function shareToWhatsApp(text, url) {
+            window.open(`https://wa.me/?text=${text}%20${encodeURIComponent(url)}`, '_blank');
+        }
+        
+        function shareToInstagram() {
+            // Download certificate first for Instagram
+            downloadCertificate();
+            alert('Certificate downloaded! Open Instagram and share from your gallery.');
+        }
+        
+        function shareToTwitter(text, url) {
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank');
+        }
+        
+        function shareToFacebook(url) {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        }
+        
+        function shareToLinkedIn(url, text) {
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+        }
+        
+        function copyShareText(text, url) {
+            navigator.clipboard.writeText(text + ' ' + url).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+        
+        async function saveProfile(e) {
+            e.preventDefault();
+            
+            const updates = {
+                full_name: document.getElementById('edit-name').value,
+                username: document.getElementById('edit-username').value,
+                bio: document.getElementById('edit-bio').value,
+                location: document.getElementById('edit-location').value
+            };
+            
+            try {
+                const user = AuthService.getUser();
+                // Use updateProfile method (not update)
+                await GreenSprintDB.users.updateProfile(user.id, updates);
+                
+                // Update display
+                document.getElementById('profile-name').textContent = updates.full_name || 'User';
+                document.getElementById('profile-username').textContent = '@' + (updates.username || 'user');
+                document.getElementById('sidebar-username').textContent = updates.full_name || updates.username;
+                
+                alert('Profile updated successfully!');
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                alert('Failed to save profile: ' + error.message);
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            GreenSprintDB.init();
+            await AuthService.init();
+            
+            if (!AuthService.isLoggedIn()) {
+                window.location.href = 'login.html?redirect=profile.html';
+                return;
+            }
+            
+            const user = AuthService.getUser();
+            const userId = user.id;
+            
+            try {
+                // Get user profile from database
+                userProfile = await GreenSprintDB.users.getProfile(userId);
+                
+                // If no profile exists, create one
+                if (!userProfile) {
+                    userProfile = await GreenSprintDB.users.createProfile(userId, {
+                        email: user.email,
+                        username: user.user_metadata?.username || user.email.split('@')[0],
+                        full_name: user.user_metadata?.full_name || '',
+                        role: 'user',
+                        trees_planted: 0,
+                        total_points: 10,
+                        level: 1,
+                        badges: []
+                    });
+                }
+                
+                if (userProfile) {
+                    // Update header
+                    document.getElementById('profile-avatar').src = userProfile.avatar_url || 'assets/images/default-avatar.png';
+                    document.getElementById('profile-name').textContent = userProfile.full_name || user.user_metadata?.full_name || 'User';
+                    document.getElementById('profile-username').textContent = '@' + (userProfile.username || user.user_metadata?.username || 'user');
+                    
+                    // Level
+                    const level = getUserLevel(userProfile.total_points || 0);
+                    document.getElementById('profile-level').innerHTML = `<i class="fa fa-medal"></i> ${level.icon} ${level.name}`;
+                    
+                    // Stats
+                    document.getElementById('stat-trees').textContent = userProfile.trees_planted || 0;
+                    document.getElementById('stat-points').textContent = (userProfile.total_points || 0).toLocaleString();
+                    document.getElementById('stat-campaigns').textContent = userProfile.campaigns_created || 0;
+                    
+                    // Calculate rank
+                    try {
+                        const leaderboard = await GreenSprintDB.users.getLeaderboard(100);
+                        const rank = leaderboard.findIndex(u => u.id === userId) + 1;
+                        document.getElementById('stat-rank').textContent = rank > 0 ? '#' + rank : '#1';
+                    } catch (e) {
+                        document.getElementById('stat-rank').textContent = '#1';
+                    }
+                    
+                    // Environmental impact
+                    const trees = userProfile.trees_planted || 0;
+                    document.getElementById('impact-co2').textContent = Math.round(trees * 22) + ' kg';
+                    document.getElementById('impact-water').textContent = (trees * 400).toLocaleString() + ' L';
+                    document.getElementById('impact-oxygen').textContent = Math.round(trees * 118) + ' kg';
+                    
+                    // Check and unlock badges based on trees planted
+                    const treesPlanted = userProfile.trees_planted || 0;
+                    const unlockedBadges = checkAndUnlockBadges(treesPlanted, userProfile.badges || []);
+                    
+                    // If new badges were unlocked, save them
+                    if (unlockedBadges.length > (userProfile.badges || []).length) {
+                        await GreenSprintDB.users.updateProfile(userId, { badges: unlockedBadges });
+                        userProfile.badges = unlockedBadges;
+                    }
+                    
+                    renderBadges(unlockedBadges);
+                    
+                    // Edit form - prefill from profile OR auth user metadata
+                    document.getElementById('edit-name').value = userProfile.full_name || user.user_metadata?.full_name || '';
+                    document.getElementById('edit-username').value = userProfile.username || user.user_metadata?.username || '';
+                    document.getElementById('edit-bio').value = userProfile.bio || '';
+                    document.getElementById('edit-location').value = userProfile.location || '';
+                    
+                    // Update sidebar
+                    document.getElementById('sidebar-username').textContent = userProfile.full_name || userProfile.username || user.user_metadata?.full_name;
+                    document.getElementById('sidebar-avatar').src = userProfile.avatar_url || 'assets/images/default-avatar.png';
+                }
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        });
+        
+        // Close modal on outside click
+        document.getElementById('certificate-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCertificateModal();
+            }
+        });
+    </script>
+</body>
+</html>

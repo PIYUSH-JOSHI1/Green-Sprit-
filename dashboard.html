@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Green Sprint</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    
+    <!-- Bootstrap -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+    </button>
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <img src="assets/images/green spirt (1).png" alt="Green Sprint">
+                <h2>Green Sprint</h2>
+            </div>
+            
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="dashboard.html" class="active">
+                        <i class="fa fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tree-tracker.html">
+                        <i class="fa fa-qrcode"></i>
+                        <span>Plant Tree</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="my-trees.html">
+                        <i class="fa fa-tree"></i>
+                        <span>My Trees</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="campaigns.html">
+                        <i class="fa fa-bullhorn"></i>
+                        <span>Campaigns</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="leaderboard.html">
+                        <i class="fa fa-trophy"></i>
+                        <span>Leaderboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="analytics.html">
+                        <i class="fa fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="community.html">
+                        <i class="fa fa-users"></i>
+                        <span>Community</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="profile.html">
+                        <i class="fa fa-user"></i>
+                        <span>Profile</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="logout()">
+                        <i class="fa fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-user">
+                <img src="assets/images/default-avatar.png" alt="User" id="sidebar-avatar">
+                <div class="sidebar-user-info">
+                    <h4 id="sidebar-username">User</h4>
+                    <span>Member</span>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Overlay for mobile -->
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+        
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Welcome back, <span id="user-name">User</span>! 🌱</h1>
+                    <p>Here's your environmental impact summary</p>
+                </div>
+                <div class="header-actions">
+                    <a href="tree-tracker.html" class="btn btn-primary">
+                        <i class="fa fa-plus"></i> Plant Tree
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card trees">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-value" id="trees-planted">0</div>
+                            <div class="stat-card-label">Trees Planted</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="fa fa-tree"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-trend up">
+                        <i class="fa fa-arrow-up"></i> Keep growing!
+                    </div>
+                </div>
+                
+                <div class="stat-card co2">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-value" id="co2-saved">0 kg</div>
+                            <div class="stat-card-label">CO₂ Absorbed</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="fa fa-cloud"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-trend up">
+                        <i class="fa fa-leaf"></i> Yearly estimate
+                    </div>
+                </div>
+                
+                <div class="stat-card water">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-value" id="water-saved">0 L</div>
+                            <div class="stat-card-label">Water Filtered</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="fa fa-tint"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-trend up">
+                        <i class="fa fa-arrow-up"></i> Yearly estimate
+                    </div>
+                </div>
+                
+                <div class="stat-card points">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-value" id="total-points">0</div>
+                            <div class="stat-card-label">Green Points</div>
+                        </div>
+                        <div class="stat-card-icon">
+                            <i class="fa fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-trend up">
+                        <i class="fa fa-fire"></i> Keep it up!
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Trees Planted Over Time</h3>
+                        <div class="card-header-actions">
+                            <select class="form-control" style="width: auto;">
+                                <option>Last 30 Days</option>
+                                <option>Last 90 Days</option>
+                                <option>This Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="trees-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Environmental Impact</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="impact-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Row -->
+            <div class="row">
+                <!-- Recent Activity -->
+                <div class="col-lg-6">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>Recent Activity</h3>
+                            <a href="my-trees.html" class="btn btn-secondary btn-sm">View All</a>
+                        </div>
+                        <div class="card-body" id="recent-activity">
+                            <!-- Activity items will be loaded here -->
+                            <div class="no-activity">
+                                <i class="fa fa-tree"></i>
+                                <p>Loading activities...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- My Campaigns -->
+                <div class="col-lg-6">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3>My Campaigns</h3>
+                            <a href="campaigns.html#create" class="btn btn-secondary btn-sm">Create New</a>
+                        </div>
+                        <div class="card-body" id="my-campaigns">
+                            <!-- Campaigns will be loaded here -->
+                            <div class="no-campaigns">
+                                <i class="fa fa-bullhorn"></i>
+                                <p>Loading campaigns...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Badges Section -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Your Badges</h3>
+                    <a href="profile.html#badges" style="color: var(--primary-color); font-size: 14px;">
+                        <i class="fa fa-download"></i> Download Certificates
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="badges-container" id="user-badges">
+                        <!-- Badges will be loaded here -->
+                        <p class="no-badges">Loading badges...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Global Stats -->
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #2d5a27 0%, #4a9c3f 100%); color: white;">
+                <div class="card-body">
+                    <h3 style="color: white; margin-bottom: 20px;">🌍 Global Impact</h3>
+                    <div class="stats-grid" style="margin-bottom: 0;">
+                        <div class="stat-card" style="background: rgba(255,255,255,0.1); border: none;">
+                            <div class="stat-card-header">
+                                <div>
+                                    <div class="stat-card-value" id="global-trees" style="color: white;">0</div>
+                                    <div class="stat-card-label" style="color: rgba(255,255,255,0.8);">Total Trees</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(255,255,255,0.1); border: none;">
+                            <div class="stat-card-header">
+                                <div>
+                                    <div class="stat-card-value" id="global-users" style="color: white;">0</div>
+                                    <div class="stat-card-label" style="color: rgba(255,255,255,0.8);">Eco Warriors</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(255,255,255,0.1); border: none;">
+                            <div class="stat-card-header">
+                                <div>
+                                    <div class="stat-card-value" id="global-co2" style="color: white;">0</div>
+                                    <div class="stat-card-label" style="color: rgba(255,255,255,0.8);">CO₂ Absorbed</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(255,255,255,0.1); border: none;">
+                            <div class="stat-card-header">
+                                <div>
+                                    <div class="stat-card-value" id="active-campaigns" style="color: white;">0</div>
+                                    <div class="stat-card-label" style="color: rgba(255,255,255,0.8);">Active Campaigns</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Hidden elements for user data -->
+    <img id="user-avatar" style="display: none;">
+    <span id="oxygen-produced" style="display: none;"></span>
+    
+    <!-- Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+    
+    <script>
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+        
+        // Logout function
+        async function logout() {
+            await AuthService.logout();
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize Supabase
+            GreenSprintDB.init();
+            
+            // Initialize Auth
+            await AuthService.init();
+            
+            // Check if logged in
+            if (!AuthService.isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Update sidebar user info
+            const profile = AuthService.getProfile();
+            if (profile) {
+                document.getElementById('sidebar-username').textContent = profile.full_name || profile.username;
+                document.getElementById('sidebar-avatar').src = profile.avatar_url || 'assets/images/default-avatar.png';
+            }
+            
+            // Initialize dashboard
+            DashboardModule.init();
+        });
+    </script>
+</body>
+</html>

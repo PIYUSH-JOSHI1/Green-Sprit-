@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | Green Sprint</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    
+    <!-- Bootstrap -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    
+    <style>
+        .leaderboard-hero {
+            background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%);
+            padding: 50px 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .leaderboard-hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .top-three-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 20px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .top-user {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            width: 200px;
+        }
+        
+        .top-user:hover {
+            transform: translateY(-10px);
+        }
+        
+        .top-user.first {
+            order: 2;
+            transform: scale(1.1);
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: white;
+            padding: 35px;
+        }
+        
+        .top-user.first:hover {
+            transform: scale(1.15) translateY(-10px);
+        }
+        
+        .top-user.second { order: 1; }
+        .top-user.third { order: 3; }
+        
+        .top-user-rank {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 15px;
+        }
+        
+        .first .top-user-rank {
+            background: rgba(255,255,255,0.3);
+            font-size: 2rem;
+        }
+        
+        .second .top-user-rank {
+            background: linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 100%);
+            color: #666;
+        }
+        
+        .third .top-user-rank {
+            background: linear-gradient(135deg, #CD7F32 0%, #DFA95C 100%);
+            color: white;
+        }
+        
+        .top-user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .first .top-user-avatar {
+            width: 100px;
+            height: 100px;
+            border: 5px solid rgba(255,255,255,0.5);
+        }
+        
+        .top-user-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .top-user-trees {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        
+        .top-user-points {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .first .top-user-points {
+            font-size: 1.6rem;
+        }
+        
+        /* Tab Navigation */
+        .leaderboard-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .leaderboard-tab {
+            padding: 12px 25px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .leaderboard-tab:hover, .leaderboard-tab.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* Leaderboard Table */
+        .leaderboard-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .leaderboard-row {
+            display: flex;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s;
+        }
+        
+        .leaderboard-row:last-child {
+            border-bottom: none;
+        }
+        
+        .leaderboard-row:hover {
+            background: #f8f9fa;
+        }
+        
+        .leaderboard-row.current-user {
+            background: linear-gradient(90deg, rgba(74, 156, 63, 0.1), transparent);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .rank {
+            width: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #888;
+        }
+        
+        .user-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-info h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .user-info span {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .user-badges {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .mini-badge {
+            font-size: 1rem;
+        }
+        
+        .stats-column {
+            text-align: center;
+            width: 100px;
+        }
+        
+        .stats-column .value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .stats-column .label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+        
+        .points-column {
+            width: 120px;
+            text-align: right;
+        }
+        
+        .points-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #FFD700;
+        }
+        
+        /* Your Position Card */
+        .your-position-card {
+            background: linear-gradient(135deg, #2d5a27 0%, #4a9c3f 100%);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .your-position-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .your-position-rank {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .your-position-rank span {
+            font-size: 1rem;
+            display: block;
+            opacity: 0.8;
+        }
+        
+        .your-position-stats {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .your-stat {
+            text-align: center;
+        }
+        
+        .your-stat .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .your-stat .label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .leaderboard-hero {
+                padding: 30px 20px;
+            }
+            
+            .leaderboard-hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .top-three-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .top-user {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .top-user.first {
+                order: 1;
+            }
+            
+            .top-user.second { order: 2; }
+            .top-user.third { order: 3; }
+            
+            .leaderboard-row {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .stats-column {
+                width: 80px;
+            }
+            
+            .your-position-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .your-position-info {
+                flex-direction: column;
+            }
+        }
+    </style>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+    </button>
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <img src="assets/images/green spirt (1).png" alt="Green Sprint">
+                <h2>Green Sprint</h2>
+            </div>
+            
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html"><i class="fa fa-home"></i><span>Dashboard</span></a></li>
+                <li><a href="tree-tracker.html"><i class="fa fa-qrcode"></i><span>Plant Tree</span></a></li>
+                <li><a href="my-trees.html"><i class="fa fa-tree"></i><span>My Trees</span></a></li>
+                <li><a href="campaigns.html"><i class="fa fa-bullhorn"></i><span>Campaigns</span></a></li>
+                <li><a href="leaderboard.html" class="active"><i class="fa fa-trophy"></i><span>Leaderboard</span></a></li>
+                <li><a href="analytics.html"><i class="fa fa-chart-line"></i><span>Analytics</span></a></li>
+                <li><a href="community.html"><i class="fa fa-users"></i><span>Community</span></a></li>
+                <li><a href="profile.html"><i class="fa fa-user"></i><span>Profile</span></a></li>
+                <li><a href="#" onclick="logout()"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
+            </ul>
+            
+            <div class="sidebar-user">
+                <img src="assets/images/default-avatar.png" alt="User" id="sidebar-avatar">
+                <div class="sidebar-user-info">
+                    <h4 id="sidebar-username">User</h4>
+                    <span>Member</span>
+                </div>
+            </div>
+        </aside>
+        
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+        
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Hero Section -->
+            <div class="leaderboard-hero">
+                <h1>🏆 Leaderboard</h1>
+                <p>See how you rank among fellow eco-warriors!</p>
+            </div>
+            
+            <!-- Your Position Card -->
+            <div class="your-position-card" id="your-position">
+                <div class="your-position-info">
+                    <div class="your-position-rank">
+                        <span>Your Rank</span>
+                        #<span id="your-rank">-</span>
+                    </div>
+                </div>
+                <div class="your-position-stats">
+                    <div class="your-stat">
+                        <div class="value" id="your-trees">0</div>
+                        <div class="label">Trees Planted</div>
+                    </div>
+                    <div class="your-stat">
+                        <div class="value" id="your-points">0</div>
+                        <div class="label">Points</div>
+                    </div>
+                    <div class="your-stat">
+                        <div class="value" id="your-co2">0 kg</div>
+                        <div class="label">CO₂ Saved</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Top 3 -->
+            <div class="top-three-container" id="top-three">
+                <!-- Will be populated dynamically -->
+                <div style="text-align: center; width: 100%;">
+                    <i class="fa fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i>
+                </div>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="leaderboard-tabs">
+                <button class="leaderboard-tab active" data-type="all-time">All Time</button>
+                <button class="leaderboard-tab" data-type="this-month">This Month</button>
+                <button class="leaderboard-tab" data-type="this-week">This Week</button>
+            </div>
+            
+            <!-- Leaderboard Table -->
+            <div class="leaderboard-table" id="leaderboard-table">
+                <div class="leaderboard-row">
+                    <div style="width: 100%; text-align: center; padding: 30px;">
+                        <i class="fa fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i>
+                        <p style="margin-top: 15px;">Loading leaderboard...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/auth.js"></script>
+    
+    <script>
+        let currentUserId = null;
+        let allUsers = [];
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+        
+        async function logout() {
+            await AuthService.logout();
+        }
+        
+        function getBadgeEmoji(badge) {
+            const badges = {
+                'seedling': '🌱',
+                'sapling': '🌿',
+                'tree_hugger': '🌳',
+                'forest_guardian': '🏞️',
+                'eco_warrior': '⚔️',
+                'nature_champion': '🏅',
+                'earth_protector': '🌍',
+                'climate_hero': '🦸'
+            };
+            return badges[badge] || '🏆';
+        }
+        
+        function renderTopThree(users) {
+            const container = document.getElementById('top-three');
+            
+            if (users.length < 3) {
+                container.innerHTML = '<p style="text-align: center; width: 100%; color: #888;">Not enough users yet!</p>';
+                return;
+            }
+            
+            container.innerHTML = users.slice(0, 3).map((user, index) => {
+                const position = index === 0 ? 'first' : index === 1 ? 'second' : 'third';
+                const rank = index === 0 ? '👑' : index === 1 ? '🥈' : '🥉';
+                
+                return `
+                    <div class="top-user ${position}">
+                        <div class="top-user-rank">${rank}</div>
+                        <img class="top-user-avatar" src="${user.avatar_url || 'assets/images/default-avatar.png'}" alt="${user.full_name}">
+                        <div class="top-user-name">${user.full_name || user.username}</div>
+                        <div class="top-user-trees">🌳 ${user.trees_planted || 0} trees</div>
+                        <div class="top-user-points">⭐ ${(user.total_points || 0).toLocaleString()}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function renderLeaderboard(users) {
+            const table = document.getElementById('leaderboard-table');
+            
+            if (users.length === 0) {
+                table.innerHTML = `
+                    <div class="leaderboard-row">
+                        <div style="width: 100%; text-align: center; padding: 30px; color: #888;">
+                            No users found
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            table.innerHTML = users.slice(3).map((user, index) => {
+                const rank = index + 4;
+                const isCurrentUser = user.id === currentUserId;
+                const badges = user.badges || [];
+                
+                return `
+                    <div class="leaderboard-row ${isCurrentUser ? 'current-user' : ''}">
+                        <div class="rank">#${rank}</div>
+                        <div class="user-info">
+                            <img src="${user.avatar_url || 'assets/images/default-avatar.png'}" alt="${user.full_name}">
+                            <div>
+                                <h4>${user.full_name || user.username} ${isCurrentUser ? '(You)' : ''}</h4>
+                                <span>@${user.username}</span>
+                            </div>
+                        </div>
+                        <div class="user-badges">
+                            ${badges.slice(0, 3).map(b => `<span class="mini-badge">${getBadgeEmoji(b)}</span>`).join('')}
+                        </div>
+                        <div class="stats-column">
+                            <div class="value">${user.trees_planted || 0}</div>
+                            <div class="label">Trees</div>
+                        </div>
+                        <div class="stats-column">
+                            <div class="value">${Math.round((user.trees_planted || 0) * 22)}</div>
+                            <div class="label">CO₂ (kg)</div>
+                        </div>
+                        <div class="points-column">
+                            <div class="points-value">⭐ ${(user.total_points || 0).toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function updateYourPosition(users) {
+            const userIndex = users.findIndex(u => u.id === currentUserId);
+            
+            if (userIndex !== -1) {
+                const user = users[userIndex];
+                document.getElementById('your-rank').textContent = userIndex + 1;
+                document.getElementById('your-trees').textContent = user.trees_planted || 0;
+                document.getElementById('your-points').textContent = (user.total_points || 0).toLocaleString();
+                document.getElementById('your-co2').textContent = Math.round((user.trees_planted || 0) * 22) + ' kg';
+            }
+        }
+        
+        async function loadLeaderboard(type = 'all-time') {
+            try {
+                let users;
+                
+                switch (type) {
+                    case 'this-month':
+                        users = await GreenSprintDB.users.getLeaderboard(100, 'monthly');
+                        break;
+                    case 'this-week':
+                        users = await GreenSprintDB.users.getLeaderboard(100, 'weekly');
+                        break;
+                    default:
+                        users = await GreenSprintDB.users.getLeaderboard(100);
+                }
+                
+                allUsers = users;
+                
+                renderTopThree(users);
+                renderLeaderboard(users);
+                updateYourPosition(users);
+                
+            } catch (error) {
+                console.error('Failed to load leaderboard:', error);
+            }
+        }
+        
+        // Tab click handlers
+        document.querySelectorAll('.leaderboard-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.leaderboard-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                loadLeaderboard(this.dataset.type);
+            });
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            GreenSprintDB.init();
+            await AuthService.init();
+            
+            if (!AuthService.isLoggedIn()) {
+                window.location.href = 'login.html?redirect=leaderboard.html';
+                return;
+            }
+            
+            currentUserId = AuthService.getUser()?.id;
+            
+            // Update sidebar
+            const profile = AuthService.getProfile();
+            if (profile) {
+                document.getElementById('sidebar-username').textContent = profile.full_name || profile.username;
+                document.getElementById('sidebar-avatar').src = profile.avatar_url || 'assets/images/default-avatar.png';
+            }
+            
+            // Load leaderboard
+            loadLeaderboard('all-time');
+        });
+    </script>
+</body>
+</html>

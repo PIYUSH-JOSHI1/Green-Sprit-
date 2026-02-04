@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Details | Green Sprint</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    <!-- Leaflet.js CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    
+    <style>
+        .tree-hero {
+            position: relative;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .tree-hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 30px;
+        }
+        
+        .tree-name {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .tree-scientific {
+            color: rgba(255,255,255,0.7);
+            font-style: italic;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .tree-badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tree-badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tree-badge.healthy {
+            background: var(--primary-color);
+        }
+        
+        .tree-badge.needs-attention {
+            background: var(--warning-color);
+        }
+        
+        .tree-badge.critical {
+            background: var(--danger-color);
+        }
+        
+        .info-card {
+            background: var(--card-background);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .info-card h3 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .impact-item {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(139, 195, 74, 0.1) 100%);
+            border-radius: 12px;
+        }
+        
+        .impact-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.3rem;
+        }
+        
+        .impact-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .impact-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .qr-section {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .qr-id {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            background: var(--background-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .planter-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: var(--background-color);
+            border-radius: 12px;
+        }
+        
+        .planter-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .planter-info h4 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .planter-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 25px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 3px solid var(--card-background);
+        }
+        
+        .timeline-date {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-content {
+            color: var(--text-primary);
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .gallery-item {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn-action {
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-update {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .btn-update:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+        
+        .btn-share {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-share:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .campaign-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--background-color);
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .campaign-link:hover {
+            transform: translateX(5px);
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
+        .campaign-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .campaign-details h5 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .campaign-details p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .tree-hero {
+                height: 300px;
+            }
+            
+            .tree-name {
+                font-size: 1.8rem;
+            }
+            
+            .impact-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <img src="assets/images/green spirt (1).png" alt="Green Sprint">
+                <h2>Green Sprint</h2>
+            </div>
+            
+            <ul class="sidebar-nav">
+                <li><a href="dashboard.html"><i class="fa fa-home"></i><span>Dashboard</span></a></li>
+                <li><a href="tree-tracker.html"><i class="fa fa-qrcode"></i><span>Plant Tree</span></a></li>
+                <li><a href="my-trees.html" class="active"><i class="fa fa-tree"></i><span>My Trees</span></a></li>
+                <li><a href="campaigns.html"><i class="fa fa-bullhorn"></i><span>Campaigns</span></a></li>
+                <li><a href="leaderboard.html"><i class="fa fa-trophy"></i><span>Leaderboard</span></a></li>
+                <li><a href="analytics.html"><i class="fa fa-chart-line"></i><span>Analytics</span></a></li>
+                <li><a href="community.html"><i class="fa fa-users"></i><span>Community</span></a></li>
+                <li><a href="profile.html"><i class="fa fa-user"></i><span>Profile</span></a></li>
+                <li><a href="#" onclick="logout()"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
+            </ul>
+            
+            <div class="sidebar-user">
+                <img src="assets/images/default-avatar.png" alt="User" id="sidebar-avatar">
+                <div class="sidebar-user-info">
+                    <h4 id="sidebar-username">User</h4>
+                    <span>Member</span>
+                </div>
+            </div>
+        </aside>
+        
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+        
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Back Link -->
+            <div style="margin-bottom: 20px;">
+                <a href="my-trees.html" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">
+                    <i class="fa fa-arrow-left"></i> Back to Trees
+                </a>
+            </div>
+        
+            <!-- Loading State -->
+            <div class="loading-container" id="loading" style="text-align: center; padding: 50px;">
+                <i class="fa fa-spinner fa-spin fa-3x" style="color: var(--primary-color);"></i>
+                <p style="margin-top: 20px;">Loading tree details...</p>
+            </div>
+        
+        <!-- Tree Details Content -->
+        <div class="content-area" id="tree-content" style="display: none;">
+            <!-- Tree Hero Image -->
+            <div class="tree-hero" id="tree-hero">
+                <div class="tree-hero-overlay">
+                    <h1 class="tree-name" id="tree-name">Neem Tree</h1>
+                    <p class="tree-scientific" id="tree-scientific">Azadirachta indica</p>
+                    <div class="tree-badges">
+                        <span class="tree-badge healthy" id="health-badge">
+                            <i class="fas fa-heart"></i> Healthy
+                        </span>
+                        <span class="tree-badge">
+                            <i class="fas fa-calendar"></i> Planted 6 months ago
+                        </span>
+                        <span class="tree-badge">
+                            <i class="fas fa-leaf"></i> Native Species
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-lg-8">
+                    <!-- Environmental Impact -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-globe text-success me-2"></i>Environmental Impact</h3>
+                        <div class="impact-grid">
+                            <div class="impact-item">
+                                <div class="impact-icon">
+                                    <i class="fas fa-cloud"></i>
+                                </div>
+                                <div class="impact-value" id="co2-value">11</div>
+                                <div class="impact-label">kg CO₂ Absorbed</div>
+                            </div>
+                            <div class="impact-item">
+                                <div class="impact-icon">
+                                    <i class="fas fa-tint"></i>
+                                </div>
+                                <div class="impact-value" id="water-value">200</div>
+                                <div class="impact-label">Liters Water Saved</div>
+                            </div>
+                            <div class="impact-item">
+                                <div class="impact-icon">
+                                    <i class="fas fa-wind"></i>
+                                </div>
+                                <div class="impact-value" id="oxygen-value">59</div>
+                                <div class="impact-label">kg Oxygen Produced</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tree Information -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-info-circle text-success me-2"></i>Tree Information</h3>
+                        <div class="info-row">
+                            <span class="info-label">Species</span>
+                            <span class="info-value" id="species-name">Neem (Azadirachta indica)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Category</span>
+                            <span class="info-value" id="tree-category">Shade Tree</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Native Region</span>
+                            <span class="info-value" id="native-region">Indian Subcontinent</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Growth Rate</span>
+                            <span class="info-value" id="growth-rate">Fast (60-90 cm/year)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Mature Height</span>
+                            <span class="info-value" id="mature-height">15-20 meters</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Life Span</span>
+                            <span class="info-value" id="life-span">150-200 years</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Growth Timeline -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-history text-success me-2"></i>Growth Timeline</h3>
+                        <div class="timeline" id="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-date">December 15, 2024</div>
+                                <div class="timeline-content">
+                                    <strong>Health Check</strong> - Tree is growing well, new leaves observed
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">November 28, 2024</div>
+                                <div class="timeline-content">
+                                    <strong>Photo Update</strong> - Monthly growth documentation
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">October 15, 2024</div>
+                                <div class="timeline-content">
+                                    <strong>Watering</strong> - Regular watering schedule maintained
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">June 5, 2024</div>
+                                <div class="timeline-content">
+                                    <strong>Tree Planted</strong> - Seedling planted during monsoon season
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Photo Gallery -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-images text-success me-2"></i>Photo Gallery</h3>
+                        <div class="gallery-grid" id="gallery">
+                            <div class="gallery-item">
+                                <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300" alt="Tree Photo 1">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=300" alt="Tree Photo 2">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=300" alt="Tree Photo 3">
+                            </div>
+                            <div class="gallery-item">
+                                <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300" alt="Tree Photo 4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="col-lg-4">
+                    <!-- QR Code -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-qrcode text-success me-2"></i>Tree QR Code</h3>
+                        <div class="qr-section">
+                            <div class="qr-code" id="qr-code">
+                                <!-- QR Code will be generated here -->
+                            </div>
+                            <div class="qr-id" id="qr-id">GS-20240605-ABC12345</div>
+                            <p class="text-muted mt-3 small">Scan to view tree details or update status</p>
+                            <button class="btn btn-outline-success mt-2" id="download-qr">
+                                <i class="fas fa-download"></i> Download QR
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-map-marker-alt text-success me-2"></i>Location</h3>
+                        <div class="info-row">
+                            <span class="info-label">Address</span>
+                            <span class="info-value" id="tree-address">Central Park, Mumbai</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Coordinates</span>
+                            <span class="info-value" id="tree-coords">19.0760° N, 72.8777° E</span>
+                        </div>
+                        <div id="mini-map" style="height: 200px; background: #e8f5e9; border-radius: 12px; margin-top: 15px; display: flex; align-items: center; justify-content: center;">
+                            <span class="text-muted"><i class="fas fa-map"></i> Map View</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Planted By -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-user text-success me-2"></i>Planted By</h3>
+                        <div class="planter-card">
+                            <img src="https://ui-avatars.com/api/?name=John+Doe&background=4CAF50&color=fff" alt="Planter" class="planter-avatar" id="planter-avatar">
+                            <div class="planter-info">
+                                <h4 id="planter-name">John Doe</h4>
+                                <p id="planting-date">June 5, 2024</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Campaign -->
+                    <div class="info-card" id="campaign-section">
+                        <h3><i class="fas fa-bullhorn text-success me-2"></i>Part of Campaign</h3>
+                        <a href="#" class="campaign-link" id="campaign-link">
+                            <div class="campaign-icon">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <div class="campaign-details">
+                                <h5 id="campaign-name">Mumbai Green Initiative</h5>
+                                <p id="campaign-progress">127 of 500 trees planted</p>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- Notes -->
+                    <div class="info-card">
+                        <h3><i class="fas fa-sticky-note text-success me-2"></i>Notes</h3>
+                        <p id="tree-notes" class="text-muted">
+                            Planted near the main entrance of the park. Good soil conditions. Regular monitoring scheduled.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-action btn-update" id="update-btn">
+                    <i class="fas fa-edit"></i> Update Status
+                </button>
+                <button class="btn btn-action btn-share" id="share-btn">
+                    <i class="fas fa-share-alt"></i> Share Tree
+                </button>
+            </div>
+        </div>
+        
+        <!-- Update Status Modal -->
+        <div class="modal fade" id="updateModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Tree Status</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="update-form">
+                            <div class="mb-3">
+                                <label class="form-label">Health Status</label>
+                                <select class="form-select" id="update-health">
+                                    <option value="healthy">Healthy</option>
+                                    <option value="needs_attention">Needs Attention</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Update Photo</label>
+                                <input type="file" class="form-control" id="update-photo" accept="image/*">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-control" id="update-notes" rows="3" placeholder="Add notes about the tree's condition..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success" id="submit-update">
+                            <i class="fas fa-save"></i> Submit Update
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Share Modal -->
+        <div class="modal fade" id="shareModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #2d5a27 0%, #4a9c3f 100%); color: white;">
+                        <h5 class="modal-title"><i class="fas fa-share-alt me-2"></i>Share Your Achievement</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Share Preview Card -->
+                        <div class="share-preview" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 15px; padding: 20px; margin-bottom: 20px; text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">🌳</div>
+                            <h4 id="share-tree-name" style="color: #2d5a27; margin-bottom: 5px;">Amla Tree</h4>
+                            <p id="share-impact" style="color: #666; font-size: 0.9rem;">Absorbing 22 kg CO₂ per year!</p>
+                            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #4CAF50;" id="share-co2">22</div>
+                                    <div style="font-size: 0.75rem; color: #888;">kg CO₂</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #2196F3;" id="share-water">400</div>
+                                    <div style="font-size: 0.75rem; color: #888;">L Water</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #00BCD4;" id="share-oxygen">118</div>
+                                    <div style="font-size: 0.75rem; color: #888;">kg O₂</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Social Share Buttons -->
+                        <p style="font-weight: 600; margin-bottom: 15px; color: #333;">Share on:</p>
+                        <div class="share-buttons" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <button class="btn" onclick="shareToWhatsApp()" style="background: #25D366; color: white; padding: 12px; border-radius: 10px;">
+                                <i class="fab fa-whatsapp me-2"></i> WhatsApp
+                            </button>
+                            <button class="btn" onclick="shareToInstagram()" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; padding: 12px; border-radius: 10px;">
+                                <i class="fab fa-instagram me-2"></i> Instagram
+                            </button>
+                            <button class="btn" onclick="shareToTwitter()" style="background: #1DA1F2; color: white; padding: 12px; border-radius: 10px;">
+                                <i class="fab fa-twitter me-2"></i> Twitter/X
+                            </button>
+                            <button class="btn" onclick="shareToFacebook()" style="background: #4267B2; color: white; padding: 12px; border-radius: 10px;">
+                                <i class="fab fa-facebook me-2"></i> Facebook
+                            </button>
+                            <button class="btn" onclick="shareToLinkedIn()" style="background: #0077B5; color: white; padding: 12px; border-radius: 10px;">
+                                <i class="fab fa-linkedin me-2"></i> LinkedIn
+                            </button>
+                            <button class="btn" onclick="shareToTelegram()" style="background: #0088cc; color: white; padding: 12px; border-radius: 10px;">
+                                <i class="fab fa-telegram me-2"></i> Telegram
+                            </button>
+                        </div>
+                        
+                        <!-- Copy Link -->
+                        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                            <p style="font-weight: 600; margin-bottom: 10px; color: #333;">Or copy link:</p>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="share-url" readonly style="background: #f5f5f5;">
+                                <button class="btn btn-success" onclick="copyShareLink()">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Download Image for Stories -->
+                        <div style="margin-top: 15px; text-align: center;">
+                            <button class="btn btn-outline-success" onclick="downloadShareImage()" style="width: 100%;">
+                                <i class="fas fa-download me-2"></i> Download Image for Stories
+                            </button>
+                            <small class="text-muted">Perfect for Instagram & WhatsApp Stories!</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    </div><!-- End dashboard-container -->
+    
+    <!-- Scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!-- Leaflet.js for Maps -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- QRCode.js for QR generation -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/auth.js"></script>
+    
+    <script>
+        // Sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+        }
+        
+        // Logout function
+        async function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                await AuthService.logout();
+                window.location.href = 'login.html';
+            }
+        }
+        // Get tree ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const treeId = urlParams.get('id');
+        const qrCodeId = urlParams.get('qr');
+        
+        let currentTree = null;
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            const session = await AuthService.checkSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Load tree details
+            await loadTreeDetails();
+            
+            // Setup event handlers
+            setupEventHandlers();
+        });
+        
+        async function loadTreeDetails() {
+            try {
+                let tree;
+                
+                if (qrCodeId) {
+                    // Fetch by QR code
+                    tree = await GreenSprintDB.QRCodeService.getTreeByQRCode(qrCodeId);
+                } else if (treeId) {
+                    // Fetch by ID
+                    tree = await GreenSprintDB.TreeService.getById(treeId);
+                } else {
+                    throw new Error('No tree identifier provided');
+                }
+                
+                if (!tree) {
+                    throw new Error('Tree not found');
+                }
+                
+                currentTree = tree;
+                displayTreeDetails(tree);
+                
+            } catch (error) {
+                console.error('Error loading tree:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Tree not found or unable to load details.
+                        <br><br>
+                        <a href="my-trees.html" class="btn btn-success">
+                            <i class="fas fa-arrow-left"></i> Back to My Trees
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayTreeDetails(tree) {
+            console.log('Displaying tree:', tree);
+            
+            // Hide loading, show content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('tree-content').style.display = 'block';
+            
+            // Set hero image
+            const heroDiv = document.getElementById('tree-hero');
+            if (tree.photo_url) {
+                heroDiv.style.backgroundImage = `url(${tree.photo_url})`;
+            } else {
+                heroDiv.style.backgroundImage = 'url(https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1200)';
+            }
+            
+            // Set tree name and scientific name
+            document.getElementById('tree-name').textContent = tree.species?.common_name || 'Tree';
+            document.getElementById('tree-scientific').textContent = tree.species?.scientific_name || '';
+            
+            // Set health badge
+            const healthBadge = document.getElementById('health-badge');
+            const healthStatus = tree.health_status || 'healthy';
+            healthBadge.className = `tree-badge ${healthStatus}`;
+            healthBadge.innerHTML = `<i class="fas fa-heart"></i> ${formatHealthStatus(healthStatus)}`;
+            
+            // Calculate environmental impact based on tree age
+            const monthsSincePlanting = calculateMonthsSince(tree.planting_date);
+            const yearFraction = Math.max(0.1, monthsSincePlanting / 12); // At least 0.1 year
+            
+            const co2Absorbed = Math.round(22 * yearFraction);
+            const waterSaved = Math.round(400 * yearFraction);
+            const oxygenProduced = Math.round(118 * yearFraction);
+            
+            document.getElementById('co2-value').textContent = co2Absorbed;
+            document.getElementById('water-value').textContent = waterSaved;
+            document.getElementById('oxygen-value').textContent = oxygenProduced;
+            
+            // Set species info
+            document.getElementById('species-name').textContent = 
+                tree.species ? `${tree.species.common_name} (${tree.species.scientific_name})` : 'Unknown Species';
+            document.getElementById('tree-category').textContent = tree.species?.category || 'Tree';
+            document.getElementById('native-region').textContent = tree.species?.native_region || 'Various Regions';
+            document.getElementById('growth-rate').textContent = tree.species?.growth_rate || 'Moderate';
+            document.getElementById('mature-height').textContent = tree.species?.mature_height || '10-20 meters';
+            document.getElementById('life-span').textContent = tree.species?.life_span || '50+ years';
+            
+            // Generate QR code with meaningful data (URL format)
+            const qrContainer = document.getElementById('qr-code');
+            qrContainer.innerHTML = '';
+            
+            // Create QR code URL with tree info
+            const qrUrl = `${window.location.origin}/tree-details.html?id=${tree.id}`;
+            
+            // Use QRCode library (qrcodejs)
+            try {
+                new QRCode(qrContainer, {
+                    text: qrUrl,
+                    width: 170,
+                    height: 170,
+                    colorDark: '#2d5a27',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch (qrError) {
+                console.error('QR generation error:', qrError);
+                // Fallback to API-based QR
+                qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(qrUrl)}" alt="QR Code">`;
+            }
+            
+            document.getElementById('qr-id').textContent = tree.qr_code_id || `TREE-${tree.id.substring(0, 8)}`;
+            
+            // Set location from latitude/longitude or location object
+            const lat = tree.latitude || tree.location?.coordinates?.[1] || null;
+            const lng = tree.longitude || tree.location?.coordinates?.[0] || null;
+            
+            if (lat && lng) {
+                document.getElementById('tree-coords').textContent = `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+                document.getElementById('tree-address').textContent = tree.notes?.split(',')[0] || 'Planted Location';
+                
+                // Initialize mini map with Leaflet if available
+                const mapContainer = document.getElementById('mini-map');
+                if (typeof L !== 'undefined') {
+                    mapContainer.innerHTML = '';
+                    const miniMap = L.map('mini-map').setView([lat, lng], 15);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap'
+                    }).addTo(miniMap);
+                    L.marker([lat, lng]).addTo(miniMap)
+                        .bindPopup(`🌳 ${tree.species?.common_name || 'Tree'}`);
+                }
+            } else {
+                document.getElementById('tree-coords').textContent = 'Location not recorded';
+                document.getElementById('tree-address').textContent = 'Unknown Location';
+            }
+            
+            // Set planter info from actual data
+            if (tree.planter) {
+                const planterName = tree.planter.full_name || tree.planter.username || 'Green Sprint User';
+                document.getElementById('planter-avatar').src = 
+                    tree.planter.avatar_url || 
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(planterName)}&background=4CAF50&color=fff`;
+                document.getElementById('planter-name').textContent = planterName;
+            } else {
+                document.getElementById('planter-name').textContent = 'Anonymous Planter';
+                document.getElementById('planter-avatar').src = 
+                    'https://ui-avatars.com/api/?name=Anonymous&background=4CAF50&color=fff';
+            }
+            document.getElementById('planting-date').textContent = formatDate(tree.planting_date);
+            
+            // Set campaign info
+            if (tree.campaign) {
+                document.getElementById('campaign-name').textContent = tree.campaign.name;
+                document.getElementById('campaign-progress').textContent = 
+                    `${tree.campaign.current_trees || 0} of ${tree.campaign.target_trees || 100} trees planted`;
+                document.getElementById('campaign-link').href = `campaign-details.html?id=${tree.campaign.id}`;
+                document.getElementById('campaign-section').style.display = 'block';
+            } else {
+                document.getElementById('campaign-section').style.display = 'none';
+            }
+            
+            // Set notes
+            document.getElementById('tree-notes').textContent = tree.notes || 'No notes added for this tree.';
+            
+            // Store tree for download QR
+            currentTree = tree;
+        }
+        
+        function setupEventHandlers() {
+            // Menu toggle
+            document.getElementById('menu-toggle').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+            
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                await AuthService.logout();
+                window.location.href = 'login.html';
+            });
+            
+            // Update button
+            document.getElementById('update-btn').addEventListener('click', () => {
+                const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+                modal.show();
+            });
+            
+            // Submit update
+            document.getElementById('submit-update').addEventListener('click', async () => {
+                if (!currentTree) return;
+                
+                const health = document.getElementById('update-health').value;
+                const notes = document.getElementById('update-notes').value;
+                const photoInput = document.getElementById('update-photo');
+                
+                try {
+                    let photoUrl = currentTree.photo_url;
+                    
+                    // Upload new photo if provided
+                    if (photoInput.files && photoInput.files[0]) {
+                        const file = photoInput.files[0];
+                        photoUrl = await GreenSprintDB.StorageService.uploadTreePhoto(currentTree.id, file);
+                    }
+                    
+                    // Update tree
+                    await GreenSprintDB.TreeService.update(currentTree.id, {
+                        health_status: health,
+                        notes: notes,
+                        photo_url: photoUrl,
+                        updated_at: new Date().toISOString()
+                    });
+                    
+                    alert('Tree status updated successfully!');
+                    location.reload();
+                    
+                } catch (error) {
+                    console.error('Error updating tree:', error);
+                    alert('Failed to update tree status');
+                }
+            });
+            
+            // Download QR
+            document.getElementById('download-qr').addEventListener('click', () => {
+                const canvas = document.querySelector('#qr-code canvas');
+                if (canvas) {
+                    const link = document.createElement('a');
+                    link.download = `tree-${currentTree.qr_code_id}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                }
+            });
+            
+            // Share button - opens share modal
+            document.getElementById('share-btn').addEventListener('click', () => {
+                if (!currentTree) return;
+                
+                // Update share modal content
+                document.getElementById('share-tree-name').textContent = 
+                    currentTree.species?.common_name || 'My Tree';
+                
+                const monthsSincePlanting = calculateMonthsSince(currentTree.planting_date);
+                const yearFraction = Math.max(0.1, monthsSincePlanting / 12);
+                const co2 = Math.round(22 * yearFraction);
+                const water = Math.round(400 * yearFraction);
+                const oxygen = Math.round(118 * yearFraction);
+                
+                document.getElementById('share-co2').textContent = co2;
+                document.getElementById('share-water').textContent = water;
+                document.getElementById('share-oxygen').textContent = oxygen;
+                document.getElementById('share-impact').textContent = 
+                    `Absorbing ${co2} kg CO₂ per year! 🌍`;
+                document.getElementById('share-url').value = window.location.href;
+                
+                // Show modal
+                const shareModal = new bootstrap.Modal(document.getElementById('shareModal'));
+                shareModal.show();
+            });
+        }
+        
+        // Social Sharing Functions
+        function getShareText() {
+            if (!currentTree) return '';
+            const treeName = currentTree.species?.common_name || 'a tree';
+            const monthsSincePlanting = calculateMonthsSince(currentTree.planting_date);
+            const yearFraction = Math.max(0.1, monthsSincePlanting / 12);
+            const co2 = Math.round(22 * yearFraction);
+            
+            return `🌳 I planted ${treeName} through Green Sprint! It's already absorbing ${co2} kg of CO₂ per year. Join me in making our planet greener! 🌍💚`;
+        }
+        
+        function shareToWhatsApp() {
+            const text = getShareText() + '\n\n' + window.location.href;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+        
+        function shareToInstagram() {
+            // Instagram doesn't support direct URL sharing, show instructions
+            alert('📸 To share on Instagram:\n\n1. Click "Download Image for Stories"\n2. Open Instagram\n3. Create a Story and add the downloaded image\n4. Add the link sticker with this URL:\n\n' + window.location.href);
+            navigator.clipboard.writeText(window.location.href);
+        }
+        
+        function shareToTwitter() {
+            const text = getShareText();
+            const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}&hashtags=GreenSprint,PlantTrees,ClimateAction`;
+            window.open(url, '_blank');
+        }
+        
+        function shareToFacebook() {
+            const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(getShareText())}`;
+            window.open(url, '_blank');
+        }
+        
+        function shareToLinkedIn() {
+            const text = getShareText();
+            const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`;
+            window.open(url, '_blank');
+        }
+        
+        function shareToTelegram() {
+            const text = getShareText();
+            const url = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+        
+        function copyShareLink() {
+            const urlInput = document.getElementById('share-url');
+            navigator.clipboard.writeText(urlInput.value).then(() => {
+                const btn = urlInput.nextElementSibling;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-secondary');
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.remove('btn-secondary');
+                    btn.classList.add('btn-success');
+                }, 2000);
+            });
+        }
+        
+        function downloadShareImage() {
+            // Create a shareable image using canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1920;
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#2d5a27');
+            gradient.addColorStop(0.5, '#4a9c3f');
+            gradient.addColorStop(1, '#2d5a27');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Tree emoji
+            ctx.font = '200px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🌳', canvas.width / 2, 350);
+            
+            // Tree name
+            ctx.font = 'bold 72px Poppins, Arial';
+            ctx.fillStyle = 'white';
+            ctx.fillText(currentTree?.species?.common_name || 'My Tree', canvas.width / 2, 500);
+            
+            // Scientific name
+            ctx.font = 'italic 36px Georgia';
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.fillText(currentTree?.species?.scientific_name || '', canvas.width / 2, 570);
+            
+            // Impact stats
+            const monthsSincePlanting = calculateMonthsSince(currentTree?.planting_date);
+            const yearFraction = Math.max(0.1, monthsSincePlanting / 12);
+            const co2 = Math.round(22 * yearFraction);
+            const water = Math.round(400 * yearFraction);
+            const oxygen = Math.round(118 * yearFraction);
+            
+            // Stats boxes
+            const boxY = 750;
+            const boxWidth = 280;
+            const boxHeight = 200;
+            const startX = (canvas.width - (boxWidth * 3 + 40)) / 2;
+            
+            // CO2 box
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.roundRect(startX, boxY, boxWidth, boxHeight, 20);
+            ctx.fill();
+            ctx.font = '80px Arial';
+            ctx.fillStyle = 'white';
+            ctx.fillText('☁️', startX + boxWidth/2, boxY + 70);
+            ctx.font = 'bold 48px Arial';
+            ctx.fillText(co2 + ' kg', startX + boxWidth/2, boxY + 140);
+            ctx.font = '24px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.fillText('CO₂ Absorbed', startX + boxWidth/2, boxY + 180);
+            
+            // Water box
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.roundRect(startX + boxWidth + 20, boxY, boxWidth, boxHeight, 20);
+            ctx.fill();
+            ctx.font = '80px Arial';
+            ctx.fillStyle = 'white';
+            ctx.fillText('💧', startX + boxWidth + 20 + boxWidth/2, boxY + 70);
+            ctx.font = 'bold 48px Arial';
+            ctx.fillText(water + ' L', startX + boxWidth + 20 + boxWidth/2, boxY + 140);
+            ctx.font = '24px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.fillText('Water Saved', startX + boxWidth + 20 + boxWidth/2, boxY + 180);
+            
+            // Oxygen box
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.roundRect(startX + (boxWidth + 20) * 2, boxY, boxWidth, boxHeight, 20);
+            ctx.fill();
+            ctx.font = '80px Arial';
+            ctx.fillStyle = 'white';
+            ctx.fillText('🌬️', startX + (boxWidth + 20) * 2 + boxWidth/2, boxY + 70);
+            ctx.font = 'bold 48px Arial';
+            ctx.fillText(oxygen + ' kg', startX + (boxWidth + 20) * 2 + boxWidth/2, boxY + 140);
+            ctx.font = '24px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.fillText('O₂ Produced', startX + (boxWidth + 20) * 2 + boxWidth/2, boxY + 180);
+            
+            // Message
+            ctx.font = 'bold 48px Poppins, Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText('I planted a tree! 🌍', canvas.width / 2, 1100);
+            
+            ctx.font = '32px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.fillText('Join me in making our planet greener', canvas.width / 2, 1170);
+            
+            // Date
+            const plantDate = currentTree?.planting_date ? new Date(currentTree.planting_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Today';
+            ctx.font = '28px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.fillText('Planted on ' + plantDate, canvas.width / 2, 1250);
+            
+            // Green Sprint branding
+            ctx.font = 'bold 40px Poppins, Arial';
+            ctx.fillStyle = 'white';
+            ctx.fillText('🌿 Green Sprint', canvas.width / 2, 1700);
+            
+            ctx.font = '24px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.fillText('Plant Trees • Track Impact • Save Planet', canvas.width / 2, 1750);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = `green-sprint-${currentTree?.species?.common_name || 'tree'}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            // Close modal and show success
+            setTimeout(() => {
+                alert('🎉 Image downloaded! Share it on your Instagram Story or WhatsApp Status!');
+            }, 500);
+        }
+        
+        // Helper functions
+        function formatHealthStatus(status) {
+            const statusMap = {
+                'healthy': 'Healthy',
+                'needs_attention': 'Needs Attention',
+                'critical': 'Critical'
+            };
+            return statusMap[status] || 'Unknown';
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+        
+        function calculateMonthsSince(dateString) {
+            if (!dateString) return 0;
+            const date = new Date(dateString);
+            const now = new Date();
+            const months = (now.getFullYear() - date.getFullYear()) * 12 + (now.getMonth() - date.getMonth());
+            return Math.max(0, months);
+        }
+    </script>
+</body>
+</html>
