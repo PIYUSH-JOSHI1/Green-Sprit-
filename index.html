@@ -33,6 +33,7 @@ https://templatemo.com/tm-586-scholar
 
 <body>
 
+  <!-- Preloader removed for faster loading -->
 
 
 
@@ -585,6 +586,12 @@ https://templatemo.com/tm-586-scholar
                 body: JSON.stringify({ name, email, message })
             });
             
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Backend server not running. Start it with: python app.py');
+            }
+            
             const data = await response.json();
             
             if (data.success) {
@@ -595,7 +602,11 @@ https://templatemo.com/tm-586-scholar
             }
         } catch (error) {
             console.error('Contact form error:', error);
-            showStatus('❌ Network error. Please try again later.', 'error');
+            if (error.message.includes('Failed to fetch') || error.message.includes('Backend server')) {
+                showStatus('❌ Backend server not running. Please start it first.', 'error');
+            } else {
+                showStatus('❌ ' + error.message, 'error');
+            }
         } finally {
             btn.textContent = originalText;
             btn.disabled = false;
@@ -619,4 +630,3 @@ https://templatemo.com/tm-586-scholar
 
   </body>
 </html>
-
